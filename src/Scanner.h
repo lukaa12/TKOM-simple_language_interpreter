@@ -1,0 +1,19 @@
+#ifndef SCANNER_H
+#define SCANNER_H
+
+#include "Reader.h"
+
+namespace tkom {
+
+	class Scanner
+	{
+	public:
+		Scanner(Reader& _reader);
+		const Token nextToken();
+	private:
+		Reader& reader;
+	};
+}
+
+
+#endif // !SCANNER_H

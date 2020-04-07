@@ -1,0 +1,35 @@
+program = {function_def};
+function_def = data_type, identifier, call_def, body;
+call_def = "(", [data_type, identifier, { ",", data_type, identifier }], ")";
+call_operator = "(", [(identifier|literal), {",", (identifier|literal)}], ")";
+body = "{", {instruction}, "}";
+instruction = if_statement | while_loop | asign_statement | init_statement | function_exec | return_statement | "brake;";
+if_statement = "if", "(", condition, ")", (body | instruction), [ "else", (body | instruction)];
+while_loop = "while", "(", condition, ")", (body | instruction);
+asign_statement = identifier, "=", right_val, ";";
+init_statement = data_type, identifier, {",", identifier}, ["=", right_val, {",", right_val}], ";";
+function_exec = function_call, ";";
+return_statement = "return", right_val, ";";
+right_val = literal | identifier | function_call | expression;
+expression = multiplicative_expr, {("+"|"-"), multiplicative_expr };
+multiplicative_expr = primary_expr, {("*"|"/"), primary_expr };
+primary_expr = ( literal | identifier | bracket_expr );
+bracket_expr = "(" expression ")";
+condition = and_cond, {"||", and_cond };
+and_cond = equal_cond, {"&&", equal_cond };
+equal_cond = relation_cond, {("==" | "!=" ), relation_cond };
+relation_cond = primary_cond, { relation_oper, primary_cond };
+primary_cond = ["!"], ( braces_cond | right_val );
+braces_cond = "(", condition, ")";
+function_call = identifier, call_operator;
+data_type = "int" | "string" | "graphic" | "color";
+identifier = (letter|"_"){letter|digit|"_"};
+literal = string_literal | integer_literal;
+string_literal = '"', {?visible character? | ?white space? }, '"';
+integer_literal = "0" | ["-"], non_zero_digit, {digit};
+letter = "a"| "b"| "c"| "d"| "e"| "f"| "g"| "h"| "i"| "j"| "k"| "l"| "m"| "n"| "o"| "p"| "q"| "r"|
+		 "s"| "t"| "u"| "v"| "w"| "x"| "y"| "z"| "A"| "B"| "C"| "D"| "E"| "F"| "G"| "H"| "I"| "J"| 
+		 "K"| "L"| "M"| "N"| "O"| "P"| "Q"| "R"| "S"| "T"| "U"| "V"| "W"| "X"| "Y"| "Z";
+non_zero_digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+digit = "0"| non_zero_digit;
+relation_oper = "<" | ">" | "<=" | ">=";
