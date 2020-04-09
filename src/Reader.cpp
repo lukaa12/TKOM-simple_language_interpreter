@@ -49,3 +49,25 @@ const unsigned int FileReader::getCol()
 {
 	return this->column;
 }
+
+TestReader::TestReader(const std::string& str): stream(str), line(1), column(0)
+{}
+
+const char TestReader::next()
+{
+	return stream.get();
+}
+
+const char TestReader::peek()
+{
+	return stream.peek();
+}
+
+const unsigned int TestReader::getLine()
+{
+	return line;
+}
+const unsigned int TestReader::getCol()
+{
+	return column;
+}
