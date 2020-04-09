@@ -2,6 +2,7 @@
 #define SCANNER_H
 
 #include "Reader.h"
+#include "Token.h"
 
 namespace tkom {
 

@@ -231,6 +231,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ErrorHandler.h" />
     <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Scanner.h" />
     <ClInclude Include="src\Token.h" />

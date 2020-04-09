@@ -3,14 +3,15 @@
 
 namespace tkom {
 
-	enum TokenType
-	{
-
-	};
-
 	class Token
 	{
-
+	public:
+		enum class Type
+		{
+			Eof,
+			Invalid,
+			
+		};
 	};
 
 }
