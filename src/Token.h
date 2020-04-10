@@ -33,7 +33,7 @@ namespace tkom {
 			CurlyOpen,
 			CurlyClose,
 			Comma,
-			Semicoln,
+			Semicolon,
 			If,
 			While,
 			Else,
@@ -53,6 +53,7 @@ namespace tkom {
 		Token(Type type, unsigned int _line, unsigned int _column, int val);
 		Token(Type type, unsigned int _line, unsigned int _column, std::string val);
 		Token(const Token& other);
+		Token& operator=(const Token& other);
 		Type getType();
 		int getIntVal();
 		std::string getStrVal();
@@ -61,11 +62,11 @@ namespace tkom {
 
 		static std::string toString(Token::Type type);
 	private:
-		const Type type;
-		const int int_value;
-		const std::string s_value;
-		const unsigned int line;
-		const unsigned int column;
+		Type type;
+		int int_value;
+		std::string s_value;
+		unsigned int line;
+		unsigned int column;
 	};
 
 	static const std::unordered_map<std::string, Token::Type>& keywords = {
@@ -78,6 +79,19 @@ namespace tkom {
 			{"if", Token::Type::If},
 			{"while", Token::Type::While},
 			{"else", Token::Type::Else}
+	};
+
+	static const std::unordered_map<char, Token::Type>& simpleSigns = {
+		{ '{', Token::Type::CurlyOpen },
+		{ '}', Token::Type::CurlyClose },
+		{ '(', Token::Type::BracketOpen },
+		{ ')', Token::Type::BracketClose },
+		{ ',', Token::Type::Comma },
+		{ ';', Token::Type::Semicolon },
+		{ '+', Token::Type::Plus },
+		{ '-', Token::Type::Minus },
+		{ '*', Token::Type::Multiply },
+		{ '/', Token::Type::Divide },
 	};
 
 	inline std::ostream& operator<<(std::ostream& o, Token::Type type)

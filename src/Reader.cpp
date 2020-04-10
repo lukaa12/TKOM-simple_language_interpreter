@@ -55,7 +55,10 @@ TestReader::TestReader(const std::string& str): stream(str), line(1), column(0)
 
 const char TestReader::next()
 {
-	return stream.get();
+	auto ch = stream.get();
+	if (ch == EOF)
+		return '\0';
+	return ch;
 }
 
 const char TestReader::peek()

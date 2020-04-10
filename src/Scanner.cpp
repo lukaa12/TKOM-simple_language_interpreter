@@ -1,5 +1,6 @@
 #include "Scanner.h"
 #include <cctype>
+#include <string>
 
 using namespace tkom;
 using T = Token::Type;
@@ -47,6 +48,92 @@ Token Scanner::nextToken()
 			return Token{ T::Identifier, line, col, buffer };
 		}
 	}
-
+	if (isdigit(ch) && ch - '0' != 0)
+	{
+		std::string buffer;
+		buffer.push_back(ch);
+		nextCh = reader.peek();
+		while (isdigit(nextCh))
+		{
+			ch = reader.next();
+			buffer.push_back(ch);
+			nextCh = reader.peek();
+		}
+		int i;
+		try 
+		{
+			i = std::stoi(buffer);
+		}
+		catch (std::out_of_range e)
+		{
+			throw std::out_of_range("Literal is too long for int value");
+			return Token{ line, col };
+		}
+		return Token{ T::IntLiteral, line, col, i };
+	}
+	switch (ch)
+	{
+	case '=':
+	{
+		if (reader.peek() == '=')
+		{
+			reader.next();
+			return Token{ T::Equal, line, col };
+		}
+		return Token{ T::Assigment, line, col };
+	}
+	case '!':
+	{
+		if (reader.peek() == '=')
+		{
+			reader.next();
+			return Token{ T::NotEqual, line, col };
+		}
+		return Token{ T::Negation, line, col };
+	}
+	case '>':
+	{
+		if (reader.peek() == '=')
+		{
+			reader.next();
+			return Token{ T::GreaterOrEqual, line, col };
+		}
+		return Token{ T::Greater, line, col };
+	}
+	case '<':
+	{
+		if (reader.peek() == '=')
+		{
+			reader.next();
+			return Token{ T::LessOrEqual, line, col };
+		}
+		return Token{ T::Less, line, col };
+	}
+	case '|':
+	{
+		if (reader.peek() == '|')
+		{
+			reader.next();
+			return Token{ T::Or, line, col };
+		}
+		return Token{ line, col };
+	}
+	case '&':
+	{
+		if (reader.peek() == '&')
+		{
+			reader.next();
+			return Token{ T::And, line, col };
+		}
+		return Token{ line, col };
+	}
+	default:
+	{
+		if (simpleSigns.count(ch) == 1)
+		{
+			return Token{ simpleSigns.at(ch), line, col };
+		}
+	}
+	}
 	return Token{line, col};
 }

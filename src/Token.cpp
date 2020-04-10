@@ -27,6 +27,19 @@ Token::Token(const Token& other) : type(other.type), line(other.line), column(ot
 
 }
 
+Token& Token::operator=(const Token& other)
+{
+    if (this != &other)
+    {
+        this->type = other.type;
+        this->line = other.line;
+        this->column = other.column;
+        this->s_value = other.s_value;
+        this->int_value = other.int_value;
+    }
+    return *this;
+}
+
 Token::Type Token::getType()
 {
 	return type;
@@ -99,8 +112,8 @@ std::string Token::toString(Token::Type type)
         return "CurlyClose";
     case tkom::Token::Type::Comma:
         return "Comma";
-    case tkom::Token::Type::Semicoln:
-        return "Semicoln";
+    case tkom::Token::Type::Semicolon:
+        return "Semicolon";
     case tkom::Token::Type::If:
         return "If";
     case tkom::Token::Type::While:
