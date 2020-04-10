@@ -10,7 +10,7 @@ namespace tkom {
 	{
 	public:
 		Scanner(Reader& _reader);
-		const Token& nextToken();
+		Token nextToken();
 	private:
 		Reader& reader;
 	};

@@ -2,25 +2,51 @@
 #include <cctype>
 
 using namespace tkom;
+using T = Token::Type;
 
 Scanner::Scanner(Reader& _reader): reader(_reader)
 {}
 
-const Token& Scanner::nextToken()
+Token Scanner::nextToken()
 {
-	char active, next;
-	Token token;
+	char ch, nextCh;
+	unsigned int line, col;
 
-	active = reader.next();
+	ch = reader.next();
 
-	while (isspace(active))
-		active = reader.next();
+	while (isspace(ch))
+		ch = reader.next();
 
-	if (active == '(')
+	line = reader.getLine();
+	col = reader.getCol() - 1;
+
+	if (ch == '\0')
 	{
-		token.type = Token::Type::BracketOpen;
-		token.line = reader.getLine();
-		token.column = reader.getCol();
-		return token;
+		return Token{T::Eof, line, col};
 	}
+	
+	if (isalpha(ch) || ch == '_')
+	{
+		std::string buffer;
+
+		buffer.push_back(ch);
+		nextCh = reader.peek();
+		while (isalnum(nextCh) || nextCh == '_')
+		{
+			ch = reader.next();
+			buffer.push_back(ch);
+			nextCh = reader.peek();
+		}
+
+		if (keywords.count(buffer) == 1)
+		{
+			return Token{ keywords.at(buffer), line, col };
+		}
+		else
+		{
+			return Token{ T::Identifier, line, col, buffer };
+		}
+	}
+
+	return Token{line, col};
 }
