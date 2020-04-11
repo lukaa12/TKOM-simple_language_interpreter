@@ -91,7 +91,6 @@ namespace tkom {
 		{ '+', Token::Type::Plus },
 		{ '-', Token::Type::Minus },
 		{ '*', Token::Type::Multiply },
-		{ '/', Token::Type::Divide },
 	};
 
 	inline std::ostream& operator<<(std::ostream& o, Token::Type type)

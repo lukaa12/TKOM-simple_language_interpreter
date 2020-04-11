@@ -73,6 +73,11 @@ Token Scanner::nextToken()
 	}
 	switch (ch)
 	{
+	case '0' :
+	{
+		if (!isdigit(reader.peek()))
+			return Token(T::IntLiteral, line, col, 0);
+	}
 	case '=':
 	{
 		if (reader.peek() == '=')
@@ -126,6 +131,25 @@ Token Scanner::nextToken()
 			return Token{ T::And, line, col };
 		}
 		return Token{ line, col };
+	}
+	case '/':
+	{
+		if (reader.peek() == '/')
+		{
+			reader.next();
+			while (reader.next() != '\n')
+				continue;
+			return this->nextToken();
+		}
+		return Token{ T::Divide, line, col };
+	}
+	case '"':
+	{
+		std::string buffer;
+		while (reader.peek() != '"')
+			buffer.push_back(reader.next());
+		reader.next();
+		return Token{ T::StringLiteral, line, col, buffer };
 	}
 	default:
 	{

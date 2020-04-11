@@ -71,4 +71,56 @@ BOOST_FIXTURE_TEST_CASE(ScanningKeywords, KeywordsStream)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(ScannerCommentTest)
+{
+	TestReader reader{ "//this is comment\nint x =10;" };
+	Scanner scanner{ reader };
+
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::IntType);
+	BOOST_CHECK_THROW(scanner.nextToken().getIntVal(), std::exception);
+	BOOST_CHECK_THROW(scanner.nextToken().getStrVal(), std::exception);
+
+}
+
+BOOST_AUTO_TEST_CASE(StringLiteralTest)
+{
+	TestReader reader{ "\"This is string literal\"" };
+	Scanner scanner{ reader };
+
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::StringLiteral);
+	BOOST_CHECK_EQUAL(t.getStrVal(), "This is string literal");
+	BOOST_CHECK_THROW(t.getIntVal(), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(IntLiteralsSeparatedCommas)
+{
+	TestReader reader{ "101,50,0,10" };
+	Scanner scanner{ reader };
+
+	for (int i = 0; i < 7; ++i)
+	{
+		Token t = scanner.nextToken();
+		if (i % 2 == 0)
+			BOOST_CHECK_EQUAL(t.getType(), Token::Type::IntLiteral);
+		else
+			BOOST_CHECK_EQUAL(t.getType(), Token::Type::Comma);
+		switch (i)
+		{
+		case 0:
+			BOOST_CHECK_EQUAL(t.getIntVal(), 101);
+			break;
+		case 2:
+			BOOST_CHECK_EQUAL(t.getIntVal(), 50);
+			break;
+		case 4:
+			BOOST_CHECK_EQUAL(t.getIntVal(), 0);
+			break;
+		case 6:
+			BOOST_CHECK_EQUAL(t.getIntVal(), 10);
+			break;
+		}
+	}
+}
+
 BOOST_AUTO_TEST_SUITE_END()
