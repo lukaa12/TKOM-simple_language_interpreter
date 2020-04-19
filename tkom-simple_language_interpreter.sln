@@ -7,18 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tkom-simple_language_interp
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug_unit_tests|x64 = Debug_unit_tests|x64
-		Debug_unit_tests|x86 = Debug_unit_tests|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug_unit_tests|x64.ActiveCfg = Debug_unit_tests|x64
-		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug_unit_tests|x64.Build.0 = Debug_unit_tests|x64
-		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug_unit_tests|x86.ActiveCfg = Debug_unit_tests|Win32
-		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug_unit_tests|x86.Build.0 = Debug_unit_tests|Win32
 		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug|x64.ActiveCfg = Debug|x64
 		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug|x64.Build.0 = Debug|x64
 		{30C8F93E-757C-4D15-A084-F288AD706C31}.Debug|x86.ActiveCfg = Debug|Win32

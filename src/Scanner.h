@@ -2,7 +2,6 @@
 #define SCANNER_H
 
 #include "Reader.h"
-#include "Token.h"
 
 namespace tkom {
 
@@ -10,7 +9,7 @@ namespace tkom {
 	{
 	public:
 		Scanner(Reader& _reader);
-		Token nextToken();
+		const Token nextToken();
 	private:
 		Reader& reader;
 	};
