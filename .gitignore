@@ -4,5 +4,5 @@ tkom-simple_language_interpreter.vcxproj.user
 tkom-simple_language_interpreter.vcxproj.filters
 .vs/*
 x64/*
-test.txt
+
 Debug/*
