@@ -6,3 +6,4 @@ tkom-simple_language_interpreter.vcxproj.filters
 x64/*
 
 Debug/*
+Debug_unit_tests/*

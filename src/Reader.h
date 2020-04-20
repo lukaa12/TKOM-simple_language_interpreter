@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <sstream>
 
 namespace tkom {
 
@@ -26,6 +27,20 @@ namespace tkom {
 		const unsigned int getCol();
 	private:
 		std::ifstream file;
+		unsigned int line;
+		unsigned int column;
+	};
+
+	class TestReader : public Reader
+	{
+	public:
+		TestReader(const std::string& str);
+		const char next();
+		const char peek();
+		const unsigned int getLine();
+		const unsigned int getCol();
+	private:
+		std::istringstream stream;
 		unsigned int line;
 		unsigned int column;
 	};
