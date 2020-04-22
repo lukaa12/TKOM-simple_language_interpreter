@@ -1,48 +1,22 @@
 #ifndef READER_H
 #define READER_H
 
-#include <fstream>
+#include <istream>
 #include <string>
-#include <sstream>
+#include "Token.h"
 
 namespace tkom {
-
 
 	class Reader 
 	{
 	public:
-		virtual const char next() = 0;
-		virtual const char peek() = 0;
-		virtual const unsigned int getLine() = 0;
-		virtual const unsigned int getCol() = 0;
-	};
-
-	class FileReader : public Reader 
-	{
-	public:
-		FileReader(const std::string& _file);
+		Reader(std::istream& _stream);
 		const char next();
 		const char peek();
-		const unsigned int getLine();
-		const unsigned int getCol();
+		Token::Position getPosition();
 	private:
-		std::ifstream file;
-		unsigned int line;
-		unsigned int column;
-	};
-
-	class TestReader : public Reader
-	{
-	public:
-		TestReader(const std::string& str);
-		const char next();
-		const char peek();
-		const unsigned int getLine();
-		const unsigned int getCol();
-	private:
-		std::istringstream stream;
-		unsigned int line;
-		unsigned int column;
+		std::istream &stream;
+		Token::Position position;
 	};
 
 }

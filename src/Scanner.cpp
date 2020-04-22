@@ -11,19 +11,16 @@ Scanner::Scanner(Reader& _reader): reader(_reader)
 Token Scanner::nextToken()
 {
 	char ch, nextCh;
-	unsigned int line, col;
-
+	Token::Position position = reader.getPosition();
 	ch = reader.next();
 
 	while (isspace(ch))
 		ch = reader.next();
-
-	line = reader.getLine();
-	col = reader.getCol() - 1;
+	
 
 	if (ch == '\0')
 	{
-		return Token{T::Eof, line, col};
+		return Token{T::Eof, position};
 	}
 	
 	if (isalpha(ch) || ch == '_')
@@ -41,11 +38,11 @@ Token Scanner::nextToken()
 
 		if (keywords.count(buffer) == 1)
 		{
-			return Token{ keywords.at(buffer), line, col };
+			return Token{ keywords.at(buffer), position };
 		}
 		else
 		{
-			return Token{ T::Identifier, line, col, buffer };
+			return Token{ T::Identifier, position, buffer };
 		}
 	}
 	if (isdigit(ch) && ch - '0' != 0)
@@ -67,70 +64,70 @@ Token Scanner::nextToken()
 		catch (std::out_of_range e)
 		{
 			throw std::out_of_range("Literal is too long for int value");
-			return Token{ line, col };
+			return Token{ position };
 		}
-		return Token{ T::IntLiteral, line, col, i };
+		return Token{ T::IntLiteral, position, i };
 	}
 	switch (ch)
 	{
 	case '0' :
 	{
 		if (!isdigit(reader.peek()))
-			return Token(T::IntLiteral, line, col, 0);
+			return Token(T::IntLiteral, position, 0);
 	}
 	case '=':
 	{
 		if (reader.peek() == '=')
 		{
 			reader.next();
-			return Token{ T::Equal, line, col };
+			return Token{ T::Equal, position };
 		}
-		return Token{ T::Assigment, line, col };
+		return Token{ T::Assigment, position };
 	}
 	case '!':
 	{
 		if (reader.peek() == '=')
 		{
 			reader.next();
-			return Token{ T::NotEqual, line, col };
+			return Token{ T::NotEqual, position };
 		}
-		return Token{ T::Negation, line, col };
+		return Token{ T::Negation, position };
 	}
 	case '>':
 	{
 		if (reader.peek() == '=')
 		{
 			reader.next();
-			return Token{ T::GreaterOrEqual, line, col };
+			return Token{ T::GreaterOrEqual, position };
 		}
-		return Token{ T::Greater, line, col };
+		return Token{ T::Greater, position };
 	}
 	case '<':
 	{
 		if (reader.peek() == '=')
 		{
 			reader.next();
-			return Token{ T::LessOrEqual, line, col };
+			return Token{ T::LessOrEqual, position };
 		}
-		return Token{ T::Less, line, col };
+		return Token{ T::Less, position };
 	}
 	case '|':
 	{
 		if (reader.peek() == '|')
 		{
 			reader.next();
-			return Token{ T::Or, line, col };
+			return Token{ T::Or, position };
 		}
-		return Token{ line, col };
+		return Token{ position };
 	}
 	case '&':
 	{
 		if (reader.peek() == '&')
 		{
 			reader.next();
-			return Token{ T::And, line, col };
+			return Token{ T::And, position };
 		}
-		return Token{ line, col };
+		return Token{ position };
 	}
 	case '/':
 	{
@@ -141,7 +138,7 @@ Token Scanner::nextToken()
 				continue;
 			return this->nextToken();
 		}
-		return Token{ T::Divide, line, col };
+		return Token{ T::Divide, position };
 	}
 	case '"':
 	{
@@ -149,15 +146,15 @@ Token Scanner::nextToken()
 		while (reader.peek() != '"')
 			buffer.push_back(reader.next());
 		reader.next();
-		return Token{ T::StringLiteral, line, col, buffer };
+		return Token{ T::StringLiteral, position, buffer };
 	}
 	default:
 	{
 		if (simpleSigns.count(ch) == 1)
 		{
-			return Token{ simpleSigns.at(ch), line, col };
+			return Token{ simpleSigns.at(ch), position };
 		}
 	}
 	}
-	return Token{line, col};
+	return Token{ position };
 }
