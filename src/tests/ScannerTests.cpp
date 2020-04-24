@@ -34,6 +34,16 @@ BOOST_AUTO_TEST_CASE(White_spaces_ignore_test)
 	BOOST_CHECK_EQUAL(t.getPosition().column, 3);
 }
 
+BOOST_AUTO_TEST_CASE(Token_position_test)
+{
+	std::stringstream in{ "\n\n\n       token" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getPosition().line, 4);
+	BOOST_CHECK_EQUAL(t.getPosition().column, 7);
+}
+
 BOOST_AUTO_TEST_CASE(Comment_ignore_test)
 {
 	std::stringstream in{ "//this is comment\n0" };
@@ -99,6 +109,109 @@ BOOST_AUTO_TEST_CASE(Identifier_test)
 	Scanner scanner{ reader };
 	Token t = scanner.nextToken();
 	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	BOOST_CHECK_EQUAL(t.getStrVal(), "identifier");
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Eof);
+}
+
+BOOST_AUTO_TEST_CASE(Keyword_test)
+{
+	std::stringstream in{ " while " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::While);
+}
+
+BOOST_AUTO_TEST_CASE(Equal_sign_test)
+{
+	std::stringstream in{ " = == " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Assigment);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Equal);
+}
+
+BOOST_AUTO_TEST_CASE(Negation_sign_test)
+{
+	std::stringstream in{ " ! != " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Negation);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::NotEqual);
+}
+
+BOOST_AUTO_TEST_CASE(Greater_sign_test)
+{
+	std::stringstream in{ " > >= " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Greater);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::GreaterOrEqual);
+}
+
+BOOST_AUTO_TEST_CASE(Less_sign_test)
+{
+	std::stringstream in{ " < <= " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Less);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::LessOrEqual);
+}
+
+BOOST_AUTO_TEST_CASE(And_operator_test)
+{
+	std::stringstream in{ " && " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::And);
+}
+
+BOOST_AUTO_TEST_CASE(Or_operator_test)
+{
+	std::stringstream in{ " || " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Or);
+}
+
+BOOST_AUTO_TEST_CASE(Divide_operator_test)
+{
+	std::stringstream in{ " // \n / " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Divide);
+}
+
+BOOST_AUTO_TEST_CASE(Simple_operator_test)
+{
+	std::stringstream in{ " * " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Multiply);
+}
+
+BOOST_AUTO_TEST_CASE(Tokens_without_white_spaces)
+{
+	std::stringstream in{ "\"Hello\"123,0;,int-==Na_m4e" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	std::vector<Token::Type> tokens{ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Comma, Token::Type::IntLiteral,
+									 Token::Type::Semicolon, Token::Type::Comma, Token::Type::IntType, Token::Type::Minus,
+									 Token::Type::Equal, Token::Type::Identifier };
+	std::vector<Token::Type> fromScanner;
+	Token t = scanner.nextToken();
+
+	while (t.getType() != Token::Type::Eof)
+	{
+		fromScanner.push_back(t.getType());
+		t = scanner.nextToken();
+	}
+	BOOST_CHECK_EQUAL_COLLECTIONS(tokens.begin(), tokens.end(), fromScanner.begin(), fromScanner.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
