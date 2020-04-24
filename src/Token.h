@@ -47,26 +47,31 @@ namespace tkom {
 			Multiply,
 			Divide
 		};
+
+		struct Position
+		{
+			unsigned int line;
+			unsigned int column;
+		};
 		
-		Token(unsigned int _line, unsigned int _column);
-		Token(Type type, unsigned int _line, unsigned int _column);
-		Token(Type type, unsigned int _line, unsigned int _column, int val);
-		Token(Type type, unsigned int _line, unsigned int _column, std::string val);
+		Token(Position _pos);
+		Token(Type type, Position _pos);
+		Token(Type type, Position _pos, int val);
+		Token(Type type, Position _pos, std::string val);
 		Token(const Token& other);
 		Token& operator=(const Token& other);
 		Type getType();
 		int getIntVal();
 		std::string getStrVal();
-		unsigned int getLine();
-		unsigned int getColumn();
+		Position getPosition();
+
 
 		static std::string toString(Token::Type type);
 	private:
 		Type type;
 		int int_value;
 		std::string s_value;
-		unsigned int line;
-		unsigned int column;
+		Position position;
 	};
 
 	static const std::unordered_map<std::string, Token::Type>& keywords = {

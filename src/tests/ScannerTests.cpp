@@ -1,126 +1,217 @@
 #include <boost/test/unit_test.hpp>
 #include "..\Scanner.h"
-
+#include <sstream>
 #include <iostream>
 
 using namespace tkom;
 
 BOOST_AUTO_TEST_SUITE(ScannerTests)
 
-struct IdOnlyStream
-{
-	TestReader reader{ "Jeden_ID Drugi2 _next3" };
-};
 
-struct KeywordsStream
+BOOST_AUTO_TEST_CASE(Initialization_test)
 {
-	TestReader reader{ "if while else return break \nif return\n   int string graphic\n color" };
-};
-
-BOOST_AUTO_TEST_CASE(InitializationTest)
-{
-	FileReader reader{"test.txt"};
+	std::stringstream in{};
+	Reader reader{ in };
 	BOOST_CHECK_NO_THROW(Scanner{ reader });
 }
 
-BOOST_FIXTURE_TEST_CASE(ScanningIdentificators, IdOnlyStream)
+BOOST_AUTO_TEST_CASE(End_of_file_Token)
 {
+	std::stringstream in{ "" };
+	Reader reader{ in };
 	Scanner scanner{ reader };
-
-	std::vector<Token> tokens{};
-	std::string names[] = { "Jeden_ID", "Drugi2", "_next3" };
-	Token t{ 1, 1 };
-	int i = 0;
-	while (t.getType() != Token::Type::Eof)
-	{
-		t = scanner.nextToken();
-		tokens.push_back(t);
-		if (i < 3)
-		{
-			BOOST_CHECK_EQUAL(t.getStrVal(), names[i]);
-		}
-		++i;
-	}
-	BOOST_CHECK_EQUAL(i, 4);
-
-	for (auto i = tokens.begin(); i != --tokens.end(); ++i)
-	{
-		BOOST_CHECK_EQUAL(i->getType(), Token::Type::Identifier);
-	}
-
-}
-
-BOOST_FIXTURE_TEST_CASE(ScanningKeywords, KeywordsStream)
-{
-	Scanner scanner{ reader };
-
-	Token::Type types[] = { Token::Type::If, Token::Type::While, Token::Type::Else, Token::Type::Return, Token::Type::Break,
-							Token::Type::If, Token::Type::Return, Token::Type::IntType, Token::Type::StringType, Token::Type::GraphicType,
-							Token::Type::ColorType };
-	std::vector<Token> tokens{};
 	Token t = scanner.nextToken();
-	while (t.getType() != Token::Type::Eof)
-	{
-		tokens.push_back(t);
-		t = scanner.nextToken();
-	}
-
-	for (auto i = 0; i < tokens.size(); ++i)
-	{
-		BOOST_CHECK_EQUAL(tokens[i].getType(), types[i]);
-	}
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Eof);
 }
 
-BOOST_AUTO_TEST_CASE(ScannerCommentTest)
+BOOST_AUTO_TEST_CASE(White_spaces_ignore_test)
 {
-	TestReader reader{ "//this is comment\nint x =10;" };
+	std::stringstream in{"		\n   ^"};
+	Reader reader{ in };
 	Scanner scanner{ reader };
-
-	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::IntType);
-	BOOST_CHECK_THROW(scanner.nextToken().getIntVal(), std::exception);
-	BOOST_CHECK_THROW(scanner.nextToken().getStrVal(), std::exception);
-
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getPosition().line, 2);
+	BOOST_CHECK_EQUAL(t.getPosition().column, 3);
 }
 
-BOOST_AUTO_TEST_CASE(StringLiteralTest)
+BOOST_AUTO_TEST_CASE(Token_position_test)
 {
-	TestReader reader{ "\"This is string literal\"" };
+	std::stringstream in{ "\n\n\n       token" };
+	Reader reader{ in };
 	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getPosition().line, 4);
+	BOOST_CHECK_EQUAL(t.getPosition().column, 7);
+}
 
+BOOST_AUTO_TEST_CASE(Comment_ignore_test)
+{
+	std::stringstream in{ "//this is comment\n0" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::IntLiteral);
+	BOOST_CHECK_EQUAL(t.getPosition().line, 2);
+}
+
+BOOST_AUTO_TEST_CASE(Integer_literal_scanning_test)
+{
+	std::stringstream in{ "10" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::IntLiteral);
+	BOOST_CHECK_EQUAL(t.getIntVal(), 10);
+}
+
+BOOST_AUTO_TEST_CASE(Following_zero_test)
+{
+	std::stringstream in{ "0123" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Invalid);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Eof);
+}
+
+BOOST_AUTO_TEST_CASE(Zero_test)
+{
+	std::stringstream in{ " 0 " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::IntLiteral);
+	BOOST_CHECK_EQUAL(t.getIntVal(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Int_out_of_range_test)
+{
+	std::stringstream in{ " 999999999999999999999999999999999 " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_THROW(scanner.nextToken(), std::out_of_range);
+}
+
+BOOST_AUTO_TEST_CASE(String_literal_test)
+{
+	std::stringstream in{ " \"Test of string\" " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
 	Token t = scanner.nextToken();
 	BOOST_CHECK_EQUAL(t.getType(), Token::Type::StringLiteral);
-	BOOST_CHECK_EQUAL(t.getStrVal(), "This is string literal");
-	BOOST_CHECK_THROW(t.getIntVal(), std::exception);
+	BOOST_CHECK_EQUAL(t.getStrVal(), "Test of string");
 }
 
-BOOST_AUTO_TEST_CASE(IntLiteralsSeparatedCommas)
+BOOST_AUTO_TEST_CASE(Identifier_test)
 {
-	TestReader reader{ "101,50,0,10" };
+	std::stringstream in{ " identifier Id0 _Next " };
+	Reader reader{ in };
 	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	BOOST_CHECK_EQUAL(t.getStrVal(), "identifier");
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Identifier);
+	t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::Eof);
+}
 
-	for (int i = 0; i < 7; ++i)
+BOOST_AUTO_TEST_CASE(Keyword_test)
+{
+	std::stringstream in{ " while " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Token t = scanner.nextToken();
+	BOOST_CHECK_EQUAL(t.getType(), Token::Type::While);
+}
+
+BOOST_AUTO_TEST_CASE(Equal_sign_test)
+{
+	std::stringstream in{ " = == " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Assigment);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Equal);
+}
+
+BOOST_AUTO_TEST_CASE(Negation_sign_test)
+{
+	std::stringstream in{ " ! != " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Negation);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::NotEqual);
+}
+
+BOOST_AUTO_TEST_CASE(Greater_sign_test)
+{
+	std::stringstream in{ " > >= " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Greater);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::GreaterOrEqual);
+}
+
+BOOST_AUTO_TEST_CASE(Less_sign_test)
+{
+	std::stringstream in{ " < <= " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Less);
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::LessOrEqual);
+}
+
+BOOST_AUTO_TEST_CASE(And_operator_test)
+{
+	std::stringstream in{ " && " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::And);
+}
+
+BOOST_AUTO_TEST_CASE(Or_operator_test)
+{
+	std::stringstream in{ " || " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Or);
+}
+
+BOOST_AUTO_TEST_CASE(Divide_operator_test)
+{
+	std::stringstream in{ " // \n / " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Divide);
+}
+
+BOOST_AUTO_TEST_CASE(Simple_operator_test)
+{
+	std::stringstream in{ " * " };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	BOOST_CHECK_EQUAL(scanner.nextToken().getType(), Token::Type::Multiply);
+}
+
+BOOST_AUTO_TEST_CASE(Tokens_without_white_spaces)
+{
+	std::stringstream in{ "\"Hello\"123,0;,int-==Na_m4e" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	std::vector<Token::Type> tokens{ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Comma, Token::Type::IntLiteral,
+									 Token::Type::Semicolon, Token::Type::Comma, Token::Type::IntType, Token::Type::Minus,
+									 Token::Type::Equal, Token::Type::Identifier };
+	std::vector<Token::Type> fromScanner;
+	Token t = scanner.nextToken();
+
+	while (t.getType() != Token::Type::Eof)
 	{
-		Token t = scanner.nextToken();
-		if (i % 2 == 0)
-			BOOST_CHECK_EQUAL(t.getType(), Token::Type::IntLiteral);
-		else
-			BOOST_CHECK_EQUAL(t.getType(), Token::Type::Comma);
-		switch (i)
-		{
-		case 0:
-			BOOST_CHECK_EQUAL(t.getIntVal(), 101);
-			break;
-		case 2:
-			BOOST_CHECK_EQUAL(t.getIntVal(), 50);
-			break;
-		case 4:
-			BOOST_CHECK_EQUAL(t.getIntVal(), 0);
-			break;
-		case 6:
-			BOOST_CHECK_EQUAL(t.getIntVal(), 10);
-			break;
-		}
+		fromScanner.push_back(t.getType());
+		t = scanner.nextToken();
 	}
+	BOOST_CHECK_EQUAL_COLLECTIONS(tokens.begin(), tokens.end(), fromScanner.begin(), fromScanner.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

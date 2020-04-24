@@ -2,27 +2,27 @@
 
 using namespace tkom;
 
-Token::Token(unsigned int _line, unsigned int _column) : type(Type::Invalid), line(_line), column(_column), int_value(0), s_value("")
+Token::Token(Token::Position _pos) : type(Type::Invalid), position(_pos), int_value(0), s_value("")
 {
 
 }
 
-Token::Token(Type _type, unsigned int _line, unsigned int _column) : type(_type), line(_line), column(_column), int_value(0), s_value("")
+Token::Token(Type _type, Token::Position _pos) : type(_type), position(_pos), int_value(0), s_value("")
 {
 
 }
 
-Token::Token(Type _type, unsigned int _line, unsigned int _column, int val) : type(_type), line(_line), column(_column), int_value(val), s_value("")
+Token::Token(Type _type, Token::Position _pos, int val) : type(_type), position(_pos), int_value(val), s_value("")
 {
 
 }
 
-Token::Token(Type _type, unsigned int _line, unsigned int _column, std::string val) : type(_type), line(_line), column(_column), int_value(0), s_value(val)
+Token::Token(Type _type, Token::Position _pos, std::string val) : type(_type), position(_pos), int_value(0), s_value(val)
 {
 
 }
 
-Token::Token(const Token& other) : type(other.type), line(other.line), column(other.column), int_value(other.int_value), s_value(other.s_value)
+Token::Token(const Token& other) : type(other.type), position(other.position), int_value(other.int_value), s_value(other.s_value)
 {
 
 }
@@ -32,8 +32,7 @@ Token& Token::operator=(const Token& other)
     if (this != &other)
     {
         this->type = other.type;
-        this->line = other.line;
-        this->column = other.column;
+        this->position = other.position;
         this->s_value = other.s_value;
         this->int_value = other.int_value;
     }
@@ -56,14 +55,9 @@ std::string Token::getStrVal()
 		throw std::exception("Cannot get string value of token");
 	return s_value;
 }
-unsigned int Token::getLine()
+Token::Position Token::getPosition()
 {
-	return line;
-}
-
-unsigned int Token::getColumn()
-{
-	return column;
+	return position;
 }
 
 std::string Token::toString(Token::Type type)

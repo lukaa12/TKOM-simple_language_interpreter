@@ -5,72 +5,41 @@
 
 using namespace tkom;
 
-FileReader::FileReader(const std::string& _file)
-	: file(_file), line(1), column(0)
+Reader::Reader(std::istream& _stream): stream(_stream), position({1, 0})
 {
-	if (!this->file.is_open() || this->file.fail())
-	{
-		throw std::exception(std::string("Cannot open file: ").append(_file).c_str());
-	}
+	if (this->stream.fail())
+		throw std::exception("Input stream error!");
 }
 
-const char FileReader::next()
+const char Reader::next()
 {
-	char actual = this->file.get();
-	if (this->file.eof())
+	char actual = this->stream.get();
+	if (this->stream.eof())
 		return '\0';
-	++column;
+	++position.column;
 	if (actual == '\n')
 	{
-		++this->line;
-		this->column = 0;
+		++this->position.line;
+		this->position.column = 0;
 	}
 	if (actual == '\r')
 	{
-		++this->line;
-		this->column = 0;
-		if ((actual = this->file.get()) != '\n')
+		++this->position.line;
+		this->position.column = 0;
+		if ((actual = this->stream.get()) != '\n')
 		{
-			std::exception("File format not supported");
+			std::exception("Format not supported");
 		}
 	}
 	return actual;
 }
 
-const char FileReader::peek()
+const char Reader::peek()
 {
-	return this->file.peek() == EOF ? '\0' : this->file.peek();
-}
-const unsigned int FileReader::getLine()
-{
-	return this->line;
-}
-const unsigned int FileReader::getCol() 
-{
-	return this->column;
+	return this->stream.peek() == EOF ? '\0' : this->stream.peek();
 }
 
-TestReader::TestReader(const std::string& str): stream(str), line(1), column(0)
-{}
-
-const char TestReader::next()
+Token::Position Reader::getPosition()
 {
-	auto ch = stream.get();
-	if (ch == EOF)
-		return '\0';
-	return ch;
-}
-
-const char TestReader::peek()
-{
-	return stream.peek();
-}
-
-const unsigned int TestReader::getLine()
-{
-	return line;
-}
-const unsigned int TestReader::getCol()
-{
-	return column;
+	return this->position;
 }
