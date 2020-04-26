@@ -220,8 +220,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_unit_tests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_unit_tests|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\Scanner.cpp" />
+    <ClCompile Include="src\tests\ParserTests.cpp" />
     <ClCompile Include="src\tests\ReaderTests.cpp" />
     <ClCompile Include="src\tests\ScannerTests.cpp" />
     <ClCompile Include="src\tests\tests_main.cpp">
@@ -235,7 +237,17 @@
     <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast\AsignStatement.h" />
+    <ClInclude Include="src\ast\AstNode.h" />
+    <ClInclude Include="src\ast\Body.h" />
+    <ClInclude Include="src\ast\FunctionDef.h" />
+    <ClInclude Include="src\ast\IfStatement.h" />
+    <ClInclude Include="src\ast\InitStatement.h" />
+    <ClInclude Include="src\ast\Instruction.h" />
+    <ClInclude Include="src\ast\Program.h" />
+    <ClInclude Include="src\ast\WhileLoop.h" />
     <ClInclude Include="src\Error.h" />
+    <ClInclude Include="src\Parser.h" />
     <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Scanner.h" />
     <ClInclude Include="src\Token.h" />
