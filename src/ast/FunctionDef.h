@@ -9,7 +9,6 @@ namespace tkom {
 		class FunctionDef : public Node
 		{
 		public:
-			Token::Type returnType;
 			
 		};
 

@@ -223,9 +223,11 @@
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\Scanner.cpp" />
+    <ClCompile Include="src\SymbolTable.cpp" />
     <ClCompile Include="src\tests\ParserTests.cpp" />
     <ClCompile Include="src\tests\ReaderTests.cpp" />
     <ClCompile Include="src\tests\ScannerTests.cpp" />
+    <ClCompile Include="src\tests\SymbolTableTests.cpp" />
     <ClCompile Include="src\tests\tests_main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_unit_tests|Win32'">false</ExcludedFromBuild>
@@ -240,16 +242,25 @@
     <ClInclude Include="src\ast\AsignStatement.h" />
     <ClInclude Include="src\ast\AstNode.h" />
     <ClInclude Include="src\ast\Body.h" />
+    <ClInclude Include="src\ast\CallDef.h" />
+    <ClInclude Include="src\ast\CallOperator.h" />
+    <ClInclude Include="src\ast\Conditions.h" />
+    <ClInclude Include="src\ast\Expressions.h" />
+    <ClInclude Include="src\ast\FunctionCall.h" />
     <ClInclude Include="src\ast\FunctionDef.h" />
+    <ClInclude Include="src\ast\FunctionExec.h" />
     <ClInclude Include="src\ast\IfStatement.h" />
     <ClInclude Include="src\ast\InitStatement.h" />
     <ClInclude Include="src\ast\Instruction.h" />
     <ClInclude Include="src\ast\Program.h" />
+    <ClInclude Include="src\ast\ReturnStatement.h" />
+    <ClInclude Include="src\ast\RightValue.h" />
     <ClInclude Include="src\ast\WhileLoop.h" />
     <ClInclude Include="src\Error.h" />
     <ClInclude Include="src\Parser.h" />
     <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Scanner.h" />
+    <ClInclude Include="src\SymbolTable.h" />
     <ClInclude Include="src\Token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
