@@ -2,6 +2,7 @@
 #define FUNCTION_DEF_H
 
 #include "AstNode.h"
+#include "../SymbolTable.h"
 
 namespace tkom {
 	namespace ast {
@@ -9,7 +10,9 @@ namespace tkom {
 		class FunctionDef : public Node
 		{
 		public:
-			
+			Symbol::DataType returnType;
+			std::unique_ptr<CallDef> requiredArguments;
+			std::unique_ptr<Body> functionBody;
 		};
 
 	}

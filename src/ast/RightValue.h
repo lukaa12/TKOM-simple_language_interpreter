@@ -6,7 +6,18 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class RightValue : public Node
+		{
+		public:
+			enum class Type {
+				StringLiteral,
+				IntLiteral,
+				Identifier,
+				Function,
+				Expression
+			} type;
+			std::variant<int, std::string, std::unique_ptr<FunctionCall>, std::unique_ptr<Expression>> value;
+		};
 
 	}
 }

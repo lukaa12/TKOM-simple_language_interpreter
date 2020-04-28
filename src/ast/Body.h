@@ -6,7 +6,11 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class Body : public Node
+		{
+		public:
+			std::vector<std::unique_ptr<Instruction>> instructions;
+		};
 
 	}
 }

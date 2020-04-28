@@ -6,7 +6,11 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class CallDef : public Node
+		{
+		public:
+			std::vector<std::pair<Symbol::DataType, std::string>> argumentsList;
+		};
 
 	}
 }

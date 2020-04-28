@@ -6,7 +6,12 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class FunctionCall : public Node
+		{
+		public:
+			std::string identifier;
+			std::unique_ptr<CallOperator> callOperator;
+		};
 
 	}
 }

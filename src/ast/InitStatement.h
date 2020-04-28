@@ -6,7 +6,17 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class InitStatement : public Instruction
+		{
+		public:
+			Symbol::DataType dataType;
+			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>> initiated;
+
+			Type getType()
+			{
+				return Type::Init;
+			}
+		};
 
 	}
 }

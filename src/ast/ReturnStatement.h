@@ -6,7 +6,16 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class ReturnStatement : public Instruction
+		{
+		public:
+			std::unique_ptr<RightValue> value;
+
+			Type getType()
+			{
+				return Type::Return;
+			}
+		};
 
 	}
 }

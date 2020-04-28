@@ -6,7 +6,17 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class WhileLoop : public Instruction
+		{
+		public:
+			std::unique_ptr<Condition> condition;
+			std::unique_ptr<Body> whileBody;
+
+			Type getType()
+			{
+				return Type::While;
+			}
+		};
 
 	}
 }

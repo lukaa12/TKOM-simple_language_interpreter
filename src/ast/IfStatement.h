@@ -6,7 +6,18 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class IfStatement : public Instruction
+		{
+		public:
+			std::unique_ptr<Condition> condition;
+			std::unique_ptr<Body> ifBody;
+			std::unique_ptr<Body> elseBody;
+
+			Type getType()
+			{
+				return Type::If;
+			}
+		};
 
 	}
 }

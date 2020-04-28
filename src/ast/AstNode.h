@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <variant>
 #include "../Token.h"
 
 namespace tkom {
@@ -13,6 +14,7 @@ namespace tkom {
 		{
 		public:
 			virtual std::string toString() = 0;
+			virtual void eval() = 0;
 		protected:
 			std::weak_ptr<Node> parent;
 		};
@@ -39,4 +41,3 @@ namespace tkom {
 #include "WhileLoop.h"
 
 #endif // !AST_NODE_H
-

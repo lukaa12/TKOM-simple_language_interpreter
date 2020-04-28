@@ -6,7 +6,16 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class FunctionExec : public Instruction
+		{
+		public:
+			std::unique_ptr<FunctionCall> function;
+
+			Type getType()
+			{
+				return Type::FuncExec;
+			}
+		};
 
 	}
 }

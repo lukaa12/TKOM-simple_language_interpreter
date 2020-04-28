@@ -6,7 +6,11 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class CallOperator : public Node
+		{
+		public:
+			std::vector<std::unique_ptr<RightValue>> arguments;
+		};
 
 	}
 }

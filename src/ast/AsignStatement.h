@@ -6,7 +6,17 @@
 namespace tkom {
 	namespace ast {
 
-		class 
+		class AssignStatement : public Instruction
+		{
+		public:
+			std::string identifier;
+			std::unique_ptr<RightValue> rvalue;
+
+			Type getType()
+			{
+				return Type::Asign;
+			}
+		};
 
 	}
 }

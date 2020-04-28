@@ -6,7 +6,23 @@
 namespace tkom {
 	namespace ast {
 
-		class
+		class Instruction : public Node
+		{
+		public:
+			enum class Type {
+				If,
+				While,
+				Asign,
+				Init,
+				FuncExec,
+				Return,
+				Break
+			};
+			virtual Type getType()
+			{
+				return Type::Break;
+			}
+		};
 
 	}
 }
