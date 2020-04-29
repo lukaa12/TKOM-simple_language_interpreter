@@ -5,11 +5,35 @@
 #include <memory>
 #include <vector>
 #include <variant>
-#include "../Token.h"
-#include "../SymbolTable.h"
+#include <ostream>
 
 namespace tkom {
 	namespace ast {
+
+		enum class DataType {
+			Int,
+			String,
+			Graphic,
+			Color
+		};
+
+		enum class IdType {
+			Function,
+			Variable
+		};
+
+		enum class RelationOperator {
+			Less,
+			LessEqual,
+			Equal,
+			GreaterEqual,
+			Greater,
+			NotEqual
+		};
+
+		std::string toString(const IdType& type);
+		std::string toString(const DataType& type);
+		std::string toString(const RelationOperator& op);
 
 		class Node 
 		{
@@ -22,13 +46,21 @@ namespace tkom {
 			{
 				throw std::exception("TODO");
 			}
-		protected:
-			std::weak_ptr<Node> parent;
 		};
 
 		class CallOperator;
 		class FunctionCall;
 		class RightValue;
+
+		inline std::ostream& operator<<(std::ostream& o, ast::IdType type)
+		{
+			return o << toString(type);
+		}
+
+		inline std::ostream& operator<<(std::ostream& o, ast::DataType type)
+		{
+			return o << toString(type);
+		}
 
 }
 }

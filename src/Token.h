@@ -54,7 +54,7 @@ namespace tkom {
 			unsigned int column;
 		};
 		
-		Token(Position _pos);
+		Token(Position _pos = Position{ 0, 0 });
 		Token(Type type, Position _pos);
 		Token(Type type, Position _pos, int val);
 		Token(Type type, Position _pos, std::string val);

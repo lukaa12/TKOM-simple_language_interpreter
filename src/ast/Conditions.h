@@ -6,15 +6,6 @@
 namespace tkom {
 	namespace ast {
 
-		enum class RelationOperator {
-			Less,
-			LessEqual,
-			Equal,
-			GreaterEqual,
-			Greater,
-			NotEqual
-		};
-
 		class BracesCondition;
 		class PrimaryCondition;
 		class RelationCondition;
@@ -57,24 +48,6 @@ namespace tkom {
 			std::unique_ptr<Condition> condition;
 		};
 
-		std::string toString(const RelationOperator& op)
-		{
-			switch (op)
-			{
-			case RelationOperator::Less:
-				return "<";
-			case RelationOperator::LessEqual:
-				return "<=";
-			case RelationOperator::Equal:
-				return "==";
-			case RelationOperator::GreaterEqual:
-				return ">=";
-			case RelationOperator::Greater:
-				return ">";
-			case RelationOperator::NotEqual:
-				return "!=";
-			}
-		}
 
 	}
 }

@@ -9,7 +9,7 @@ namespace tkom {
 		class CallDef : public Node
 		{
 		public:
-			std::vector<std::pair<Symbol::DataType, std::string>> argumentsList;
+			std::vector<std::pair<DataType, std::string>> argumentsList;
 		};
 
 	}

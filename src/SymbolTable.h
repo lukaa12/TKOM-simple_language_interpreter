@@ -2,35 +2,25 @@
 #define SYMBOL_TABLE_H
 
 #include <string>
-#include <ostream>
 #include <unordered_map>
 #include <stack>
+#include <variant>
+#include "ast/AstNode.h"
 
 namespace tkom {
 
 	class Symbol
 	{
 	public:
-		enum class Type {
-			Function,
-			Variable
-		} type;
-
-		enum class DataType {
-			Int,
-			String,
-			Graphic,
-			Color
-		} dataType;
-
+		ast::IdType type;
+		ast::DataType dataType;
 		std::string identifier;
-		int value; //will be replaced by std::variant
+//		std::variant<int, std::string, std::shared_ptr<ast::FunctionDef>> value;
+		std::variant<int, std::string> value;
 
-		Symbol(Type _type, DataType _dtype, std::string _id);
+		Symbol(ast::IdType _type, ast::DataType _dtype, std::string _id);
+//		Symbol(std::shared_ptr<ast::FunctionDef> ptr);
 		Symbol() = default;
-
-		static std::string toString(Type type);
-		static std::string toString(DataType type);
 	};
 
 	class Scope
@@ -55,15 +45,6 @@ namespace tkom {
 		std::stack<Scope> local;
 	};
 
-	inline std::ostream& operator<<(std::ostream& o, Symbol::Type type)
-	{
-		return o << Symbol::toString(type);
-	}
-
-	inline std::ostream& operator<<(std::ostream& o, Symbol::DataType type)
-	{
-		return o << Symbol::toString(type);
-	}
 
 }
 

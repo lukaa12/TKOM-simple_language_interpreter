@@ -9,7 +9,7 @@ namespace tkom {
 		class InitStatement : public Instruction
 		{
 		public:
-			Symbol::DataType dataType;
+			DataType dataType;
 			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>> initiated;
 
 			Type getType()

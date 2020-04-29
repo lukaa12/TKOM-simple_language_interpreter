@@ -216,6 +216,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ast\AstUtils.cpp" />
     <ClCompile Include="src\ast\tests\AstTests.cpp" />
     <ClCompile Include="src\Error.cpp" />
     <ClCompile Include="src\main.cpp">

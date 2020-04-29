@@ -15,12 +15,14 @@ namespace tkom {
 		std::unique_ptr<ast::Program> parse();
 	private:
 		Scanner& scanner;
-		SymbolTable& symbolTable;
+		SymbolTable symbolTable;
 		Token token;
 
 		void advance();
+		ast::DataType getDataType();
+		bool checkType(const Token::Type& type);
 
-		std::unique_ptr<ast::FunctionDef> readFunctionDef();
+		std::shared_ptr<ast::FunctionDef> readFunctionDef();
 		std::unique_ptr<ast::CallDef> readCallDef();
 		std::unique_ptr<ast::Body> readBodyBlock();
 		std::unique_ptr<ast::CallOperator> readCallOperator();

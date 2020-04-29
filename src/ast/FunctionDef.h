@@ -9,7 +9,8 @@ namespace tkom {
 		class FunctionDef : public Node
 		{
 		public:
-			Symbol::DataType returnType;
+			DataType returnType;
+			std::string identifier;
 			std::unique_ptr<CallDef> requiredArguments;
 			std::unique_ptr<Body> functionBody;
 		};

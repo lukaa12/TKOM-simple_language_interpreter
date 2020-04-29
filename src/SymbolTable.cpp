@@ -62,32 +62,12 @@ void Scope::addSymbol(const Symbol& symbol)
 		throw std::exception("Symbol already definied in this scope");
 }
 
-Symbol::Symbol(Type _type, DataType _dtype, std::string _id): type(_type), dataType(_dtype), identifier(_id)
+Symbol::Symbol(ast::IdType _type, ast::DataType _dtype, std::string _id): type(_type), dataType(_dtype), identifier(_id)
 {}
 
-std::string Symbol::toString(Type type)
-{
-	switch (type)
-	{
-	case Type::Function:
-		return "Function";
-	case Type::Variable:
-		return "Variable";
-	}
-	return "Unknown";
-}
-std::string Symbol::toString(DataType type)
-{
-	switch (type)
-	{
-	case DataType::Color:
-		return "Color";
-	case DataType::Graphic:
-		return "Graphic";
-	case DataType::Int:
-		return "Int";
-	case DataType::String:
-		return "String";
-	}
-	return "Unknown";
-}
+//Symbol::Symbol(std::shared_ptr<ast::FunctionDef> ptr): type(Type::Function), dataType(ptr->returnType),
+//identifier(ptr->identifier)
+//{
+//	value = ptr;
+//}
+
