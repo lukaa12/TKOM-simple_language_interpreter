@@ -2,7 +2,6 @@
 #define FUNCTION_DEF_H
 
 #include "AstNode.h"
-#include "../SymbolTable.h"
 
 namespace tkom {
 	namespace ast {

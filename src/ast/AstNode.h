@@ -6,6 +6,7 @@
 #include <vector>
 #include <variant>
 #include "../Token.h"
+#include "../SymbolTable.h"
 
 namespace tkom {
 	namespace ast {
@@ -13,31 +14,41 @@ namespace tkom {
 		class Node 
 		{
 		public:
-			virtual std::string toString() = 0;
-			virtual void eval() = 0;
+			virtual std::string toString()
+			{
+				throw std::exception("TODO");
+			}
+			virtual void eval()
+			{
+				throw std::exception("TODO");
+			}
 		protected:
 			std::weak_ptr<Node> parent;
 		};
 
+		class CallOperator;
+		class FunctionCall;
+		class RightValue;
+
 }
 }
 
-
+#include "Expressions.h"
+#include "CallOperator.h"
+#include "FunctionCall.h"
+#include "RightValue.h"
+#include "Conditions.h"
+#include "Instruction.h"
+#include "RightValue.h"
 #include "AsignStatement.h"
 #include "Body.h"
 #include "CallDef.h"
-#include "CallOperator.h"
-#include "Conditions.h"
-#include "Expressions.h"
-#include "FunctionCall.h"
 #include "FunctionDef.h"
 #include "FunctionExec.h"
 #include "IfStatement.h"
 #include "InitStatement.h"
-#include "Instruction.h"
-#include "Program.h"
 #include "ReturnStatement.h"
-#include "RightValue.h"
 #include "WhileLoop.h"
+#include "Program.h"
 
 #endif // !AST_NODE_H

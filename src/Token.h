@@ -60,10 +60,10 @@ namespace tkom {
 		Token(Type type, Position _pos, std::string val);
 		Token(const Token& other);
 		Token& operator=(const Token& other);
-		Type getType();
-		int getIntVal();
-		std::string getStrVal();
-		Position getPosition();
+		Type getType() const;
+		int getIntVal() const;
+		std::string getStrVal() const;
+		Position getPosition() const;
 
 
 		static std::string toString(Token::Type type);

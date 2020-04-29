@@ -6,7 +6,7 @@
 namespace tkom {
 	namespace ast {
 
-		class AssignStatement : public Instruction
+		class AsignStatement : public Instruction
 		{
 		public:
 			std::string identifier;

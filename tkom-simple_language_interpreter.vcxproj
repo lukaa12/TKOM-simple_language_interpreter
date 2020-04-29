@@ -216,6 +216,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ast\tests\AstTests.cpp" />
+    <ClCompile Include="src\Error.cpp" />
     <ClCompile Include="src\main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_unit_tests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_unit_tests|x64'">true</ExcludedFromBuild>
@@ -224,6 +226,7 @@
     <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\Scanner.cpp" />
     <ClCompile Include="src\SymbolTable.cpp" />
+    <ClCompile Include="src\tests\ErrorTests.cpp" />
     <ClCompile Include="src\tests\ParserTests.cpp" />
     <ClCompile Include="src\tests\ReaderTests.cpp" />
     <ClCompile Include="src\tests\ScannerTests.cpp" />

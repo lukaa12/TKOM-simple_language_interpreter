@@ -6,6 +6,10 @@
 namespace tkom {
 	namespace ast {
 
+		class BracketExpression;
+		class PrimaryExpression;
+		class MultiplicativeExpression;
+
 		class Expression : public Node
 		{
 		public:

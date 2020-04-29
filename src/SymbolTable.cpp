@@ -44,7 +44,7 @@ void SymbolTable::enterScope()
 void SymbolTable::leaveScope()
 {
 	if (local.size() == 0)
-		throw std::exception("Cannon leave scope");
+		throw std::exception("Cannot leave scope");
 	local.pop();
 }
 

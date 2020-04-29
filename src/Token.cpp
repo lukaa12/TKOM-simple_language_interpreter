@@ -39,23 +39,23 @@ Token& Token::operator=(const Token& other)
     return *this;
 }
 
-Token::Type Token::getType()
+Token::Type Token::getType() const
 {
 	return type;
 }
-int Token::getIntVal()
+int Token::getIntVal() const
 {
 	if (type != Type::IntLiteral)
 		throw std::exception("Cannot get int value of token");
 	return int_value;
 }
-std::string Token::getStrVal()
+std::string Token::getStrVal() const
 {
 	if (type != Type::Identifier && type != Type::StringLiteral)
 		throw std::exception("Cannot get string value of token");
 	return s_value;
 }
-Token::Position Token::getPosition()
+Token::Position Token::getPosition() const
 {
 	return position;
 }
