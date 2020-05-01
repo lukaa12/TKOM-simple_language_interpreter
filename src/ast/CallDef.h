@@ -9,6 +9,17 @@ namespace tkom {
 		class CallDef : public Node
 		{
 		public:
+			std::vector<std::pair<DataType, std::string>>& getArgumenst()
+			{
+				return argumentsList;
+			}
+
+			void addArgument(std::pair<DataType, std::string> arg)
+			{
+				argumentsList.push_back(arg);
+			}
+
+		private:
 			std::vector<std::pair<DataType, std::string>> argumentsList;
 		};
 

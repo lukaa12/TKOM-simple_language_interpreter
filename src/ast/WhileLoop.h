@@ -9,13 +9,37 @@ namespace tkom {
 		class WhileLoop : public Instruction
 		{
 		public:
-			std::unique_ptr<Condition> condition;
-			std::unique_ptr<Body> whileBody;
+			WhileLoop() = default;
+			
+			void setCondition(std::shared_ptr<Condition>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				condition = ptr;
+			}
+
+			void setBody(std::shared_ptr<Body>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				this->whileBody = ptr;
+			}
+
+			std::shared_ptr<Condition> getCondition()
+			{
+				return condition;
+			}
+
+			std::shared_ptr<Body> getBody()
+			{
+				return whileBody;
+			}
 
 			Type getType()
 			{
 				return Type::While;
 			}
+		private:
+			std::shared_ptr<Condition> condition;
+			std::shared_ptr<Body> whileBody;
 		};
 
 	}

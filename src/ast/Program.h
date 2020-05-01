@@ -9,9 +9,15 @@ namespace tkom {
 		class Program : public Node
 		{
 		public:
-			void addFunction(const std::shared_ptr<FunctionDef>& function)
+			void addFunction(std::shared_ptr<FunctionDef>& function)
 			{
+				function->parent = std::make_shared<Node>(*this);
 				this->functions.push_back(function);
+			}
+
+			std::vector<std::shared_ptr<FunctionDef>>& getFunctions()
+			{
+				return functions;
 			}
 
 			std::string toString()
@@ -19,7 +25,8 @@ namespace tkom {
 				return "Program";
 			}
 
-			std::vector<std::shared_ptr<FunctionDef>> functions = {};
+		private:
+			std::vector<std::shared_ptr<FunctionDef>> functions;
 		};
 
 	}

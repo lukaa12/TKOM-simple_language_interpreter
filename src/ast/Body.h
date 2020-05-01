@@ -9,7 +9,19 @@ namespace tkom {
 		class Body : public Node
 		{
 		public:
-			std::vector<std::unique_ptr<Instruction>> instructions;
+			void addInstruction(std::shared_ptr<Instruction>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				instructions.push_back(ptr);
+			}
+
+			std::vector<std::shared_ptr<Instruction>>& getInstructions()
+			{
+				return instructions;
+			}
+
+		private:
+			std::vector<std::shared_ptr<Instruction>> instructions;
 		};
 
 	}

@@ -9,13 +9,38 @@ namespace tkom {
 		class InitStatement : public Instruction
 		{
 		public:
-			DataType dataType;
-			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>> initiated;
+			InitStatement() = default;
+
+			void setDataType(const DataType& type)
+			{
+				this->dataType = type;
+			}
+
+			DataType getDataType()
+			{
+				return dataType;
+			}
+
+			void addInitiated(std::pair<std::string, std::shared_ptr<RightValue>>& pair)
+			{
+				if (pair.second == nullptr)
+					pair.second->parent = std::make_shared<Node>(*this);
+				this->initiated.push_back(pair);
+			}
+
+			std::vector<std::pair<std::string, std::shared_ptr<RightValue>>>& getInitiated()
+			{
+				return initiated;
+			}
 
 			Type getType()
 			{
 				return Type::Init;
 			}
+
+		private:
+			DataType dataType;
+			std::vector<std::pair<std::string, std::shared_ptr<RightValue>>> initiated;
 		};
 
 	}

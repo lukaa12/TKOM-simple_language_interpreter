@@ -19,6 +19,7 @@ std::string tkom::ast::toString(const RelationOperator& op)
 	case RelationOperator::NotEqual:
 		return "!=";
 	}
+	return "Unknown Relation Operator";
 }
 
 std::string tkom::ast::toString(const IdType& type)
@@ -47,4 +48,16 @@ std::string tkom::ast::toString(const DataType& type)
 		return "String";
 	}
 	return "Unknown";
+}
+
+void BracketExpression::setExpression(std::shared_ptr<Expression>& ptr)
+{
+	ptr->parent = std::make_shared<Node>(*this);
+	expression = ptr;
+}
+
+void BracesCondition::setCondition(std::shared_ptr<Condition>& ptr)
+{
+	ptr->parent = std::make_shared<Node>(*this);
+	condition = ptr;
 }

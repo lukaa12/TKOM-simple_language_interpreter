@@ -16,13 +16,13 @@ BOOST_AUTO_TEST_CASE(Add_symbol_to_global_scope)
 {
 	SymbolTable table;
 
-	BOOST_CHECK_NO_THROW(table.addGlobalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i")));
+	BOOST_CHECK_NO_THROW(table.addGlobalSymbol(Symbol(ast::DataType::Int, "i")));
 }
 
 BOOST_AUTO_TEST_CASE(Get_symbol_from_global)
 {
 	SymbolTable table;
-	table.addGlobalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
+	table.addGlobalSymbol(Symbol(ast::DataType::Int, "i"));
 
 	Symbol symbol;
 
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(Get_symbol_from_global)
 BOOST_AUTO_TEST_CASE(Try_to_get_uninitialized_symbol)
 {
 	SymbolTable table;
-	table.addGlobalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
+	table.addGlobalSymbol(Symbol(ast::DataType::Int, "i"));
 
 	BOOST_CHECK_THROW(table.getSymbol("j"), std::exception);
 }
@@ -44,25 +44,25 @@ BOOST_AUTO_TEST_CASE(Adding_local_symbols_test)
 {
 	SymbolTable table;
 	table.enterScope();
-	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i")));
+	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::DataType::Int, "i")));
 }
 
 BOOST_AUTO_TEST_CASE(Overlapping_symbols_names_test)
 {
 	SymbolTable table;
-	table.addGlobalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
+	table.addGlobalSymbol(Symbol(ast::DataType::Int, "i"));
 	table.enterScope();
-	table.addGlobalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "j"));
+	table.addGlobalSymbol(Symbol(ast::DataType::Int, "j"));
 
 	BOOST_CHECK_EQUAL(table.getSymbol("i").dataType, ast::DataType::Int);
 	BOOST_CHECK_EQUAL(table.getSymbol("j").dataType, ast::DataType::Int);
 
-	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::IdType::Variable, ast::DataType::String, "i")));
+	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::DataType::String, "i")));
 
 	BOOST_CHECK_EQUAL(table.getSymbol("i").dataType, ast::DataType::String);
 
 	table.enterScope();
-	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::IdType::Variable, ast::DataType::Color, "i")));
+	BOOST_CHECK_NO_THROW(table.addLocalSymbol(Symbol(ast::DataType::Color, "i")));
 
 	BOOST_CHECK_EQUAL(table.getSymbol("i").dataType, ast::DataType::Color);
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(Adding_symbol_test)
 {
 	Scope scope;
 
-	BOOST_CHECK_NO_THROW(scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i")));
+	BOOST_CHECK_NO_THROW(scope.addSymbol(Symbol(ast::DataType::Int, "i")));
 }
 
 BOOST_AUTO_TEST_CASE(Getting_symbol_from_empty)
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(Getting_symbol_from_empty)
 BOOST_AUTO_TEST_CASE(Getting_symbol_from_scope)
 {
 	Scope scope;
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
+	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
 
 	Symbol symbol = scope.getSymbol("i");
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(Getting_symbol_from_scope)
 BOOST_AUTO_TEST_CASE(Trying_to_get_uninitialized_symbol)
 {
 	Scope scope;
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
+	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
 
 	BOOST_CHECK_THROW(scope.getSymbol("j"), std::exception);
 }
@@ -113,17 +113,17 @@ BOOST_AUTO_TEST_CASE(Trying_to_get_uninitialized_symbol)
 BOOST_AUTO_TEST_CASE(Redefining_the_symbol)
 {
 	Scope scope;
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
-	BOOST_CHECK_THROW(scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i")), std::exception);
+	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
+	BOOST_CHECK_THROW(scope.addSymbol(Symbol(ast::DataType::Int, "i")), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(More_symbols_in_scope)
 {
 	Scope scope;
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "i"));
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::Int, "j"));
-	scope.addSymbol(Symbol(ast::IdType::Variable, ast::DataType::String, "name"));
-	scope.addSymbol(Symbol(ast::IdType::Function, ast::DataType::Int, "func"));
+	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
+	scope.addSymbol(Symbol(ast::DataType::Int, "j"));
+	scope.addSymbol(Symbol(ast::DataType::String, "name"));
+	scope.addSymbol(Symbol(ast::DataType::Int, "func"));
 
 	Symbol symbol = scope.getSymbol("j");
 

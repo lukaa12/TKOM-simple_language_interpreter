@@ -15,12 +15,11 @@ namespace tkom {
 		ast::IdType type;
 		ast::DataType dataType;
 		std::string identifier;
-//		std::variant<int, std::string, std::shared_ptr<ast::FunctionDef>> value;
-		std::variant<int, std::string> value;
+		std::variant<int, std::string, std::shared_ptr<ast::FunctionDef>> value;
 
-		Symbol(ast::IdType _type, ast::DataType _dtype, std::string _id);
-//		Symbol(std::shared_ptr<ast::FunctionDef> ptr);
-		Symbol() = default;
+		Symbol(ast::DataType _dtype, std::string _id);
+		Symbol(std::shared_ptr<ast::FunctionDef> ptr);
+		Symbol();
 	};
 
 	class Scope

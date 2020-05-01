@@ -9,8 +9,30 @@ namespace tkom {
 		class FunctionCall : public Node
 		{
 		public:
+			std::string getIdentifier()
+			{
+				return identifier;
+			}
+
+			void setIdentifier(std::string id)
+			{
+				identifier = id;
+			}
+
+			std::shared_ptr<CallOperator> getCallOperator()
+			{
+				return callOperator;
+			}
+
+			void steCallOperator(std::shared_ptr<CallOperator>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				callOperator = ptr;
+			}
+
+		private:
 			std::string identifier;
-			std::unique_ptr<CallOperator> callOperator;
+			std::shared_ptr<CallOperator> callOperator;
 		};
 
 	}

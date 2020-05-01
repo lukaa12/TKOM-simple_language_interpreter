@@ -2,6 +2,7 @@
 #define CALL_OPERATOR_H
 
 #include "AstNode.h"
+#include "RightValue.h"
 
 namespace tkom {
 	namespace ast {
@@ -9,7 +10,20 @@ namespace tkom {
 		class CallOperator : public Node
 		{
 		public:
-			std::vector<std::unique_ptr<RightValue>> arguments;
+
+			void addArgument(std::shared_ptr<RightValue>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				arguments.push_back(ptr);
+			}
+
+			std::vector<std::shared_ptr<RightValue>>& getArguments()
+			{
+				return arguments;
+			}
+
+		private:
+			std::vector<std::shared_ptr<RightValue>> arguments;
 		};
 
 	}

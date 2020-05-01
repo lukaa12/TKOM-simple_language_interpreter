@@ -9,10 +9,53 @@ namespace tkom {
 		class FunctionDef : public Node
 		{
 		public:
+			DataType getReturnType()
+			{
+				return returnType;
+			}
+
+			void setReturnType(DataType type)
+			{
+				returnType = type;
+			}
+
+			std::string getIdentifier()
+			{
+				return identifier;
+			}
+
+			void setIdentifier(std::string id)
+			{
+				identifier = id;
+			}
+
+			std::shared_ptr<CallDef> getCallDef()
+			{
+				return requiredArguments;
+			}
+
+			void setCallDef(std::shared_ptr<CallDef>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				requiredArguments = ptr;
+			}
+
+			std::shared_ptr<Body> getFunctionBody()
+			{
+				return functionBody;
+			}
+
+			void seyFunctionBody(std::shared_ptr<Body>& ptr)
+			{
+				ptr->parent = std::make_shared<Node>(*this);
+				functionBody = ptr;
+			}
+
+		private:
 			DataType returnType;
 			std::string identifier;
-			std::unique_ptr<CallDef> requiredArguments;
-			std::unique_ptr<Body> functionBody;
+			std::shared_ptr<CallDef> requiredArguments;
+			std::shared_ptr<Body> functionBody;
 		};
 
 	}

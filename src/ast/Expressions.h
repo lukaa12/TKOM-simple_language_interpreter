@@ -6,21 +6,20 @@
 namespace tkom {
 	namespace ast {
 
-		class BracketExpression;
-		class PrimaryExpression;
-		class MultiplicativeExpression;
+		class Expression;
 
-		class Expression : public Node
+		class BracketExpression : public Node
 		{
 		public:
-			std::vector<std::pair<bool, std::unique_ptr<MultiplicativeExpression>>> components;
-		};
+			std::shared_ptr<Expression> getExpression()
+			{
+				return expression;
+			}
 
-		class MultiplicativeExpression : public Node
-		{
-		public:
-			std::vector<std::unique_ptr<PrimaryExpression>> components;
-			std::vector<bool> divisionFlags;
+			void setExpression(std::shared_ptr<Expression>& ptr);
+
+		private:
+			std::shared_ptr<Expression> expression;
 		};
 
 		class PrimaryExpression : public Node
@@ -31,15 +30,110 @@ namespace tkom {
 				Identifier,
 				Function,
 				Bracket
-			} type;
-			std::variant<std::string, int, std::unique_ptr<FunctionCall>, std::unique_ptr<BracketExpression>> value;
+			};
+
+
+			void setType(Type t)
+			{
+				type = t;
+			}
+
+			Type getType()
+			{
+				return type;
+			}
+
+			template<typename T>
+			T getValue();		
+
+			template<typename T>
+			void setValue(T val);
+
+			template<>
+			void setValue(int val);
+
+			template<>
+			void setValue(std::string val);
+
+		private:
+			Type type;
+			std::variant<std::string, int, std::shared_ptr<FunctionCall>, std::shared_ptr<BracketExpression>> value;
 		};
 
-		class BracketExpression : public Node
+		class MultiplicativeExpression : public Node
 		{
 		public:
-			std::unique_ptr<Expression> expression;
+			void addComponent(std::shared_ptr<PrimaryExpression>& component)
+			{
+				component->parent = std::make_shared<Node>(*this);
+				components.push_back(component);
+				if (components.size() != divisionFlags.size() + 1)
+					throw std::exception("Illegal multiplicative expression");
+			}
+
+			void addOperator(bool isDivision)
+			{
+				divisionFlags.push_back(isDivision);
+			}
+
+			std::vector<std::shared_ptr<PrimaryExpression>>& getComponents()
+			{
+				return components;
+			}
+
+			std::vector<bool>& getOperators()
+			{
+				return divisionFlags;
+			}
+
+		private:
+			std::vector<std::shared_ptr<PrimaryExpression>> components;
+			std::vector<bool> divisionFlags;
 		};
+
+		class Expression : public Node
+		{
+		public:
+			std::vector<std::pair<bool, std::shared_ptr<MultiplicativeExpression>>>& getComponents()
+			{
+				return components;
+			}
+
+			void addComponent(std::pair<bool, std::shared_ptr<MultiplicativeExpression>> component)
+			{
+				component.second->parent = std::make_shared<Node>(*this);
+				components.push_back(component);
+			}
+
+		private:
+			std::vector<std::pair<bool, std::shared_ptr<MultiplicativeExpression>>> components;
+		};
+
+		template<typename T>
+		T PrimaryExpression::getValue()
+		{
+			return std::get<T>(value);
+		}
+
+		template<typename T>
+		void PrimaryExpression::setValue(T val)
+		{
+			if (typeid(val) == typeid(std::shared_ptr<FunctionCall>) || typeid(val) == typeid(std::shared_ptr<BracketExpression>))
+				val->parent = std::make_shared<Node>(*this);
+			value = val;
+		}
+
+		template<>
+		void PrimaryExpression::setValue(int val)
+		{
+			value = val;
+		}
+
+		template<>
+		void PrimaryExpression::setValue(std::string val)
+		{
+			value = val;
+		}
 
 	}
 }

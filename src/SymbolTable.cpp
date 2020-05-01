@@ -62,12 +62,12 @@ void Scope::addSymbol(const Symbol& symbol)
 		throw std::exception("Symbol already definied in this scope");
 }
 
-Symbol::Symbol(ast::IdType _type, ast::DataType _dtype, std::string _id): type(_type), dataType(_dtype), identifier(_id)
+Symbol::Symbol(ast::DataType _dtype, std::string _id): type(ast::IdType::Variable), dataType(_dtype), identifier(_id)
 {}
 
-//Symbol::Symbol(std::shared_ptr<ast::FunctionDef> ptr): type(Type::Function), dataType(ptr->returnType),
-//identifier(ptr->identifier)
-//{
-//	value = ptr;
-//}
+Symbol::Symbol(std::shared_ptr<ast::FunctionDef> ptr): type(ast::IdType::Function), dataType(ptr->getReturnType()),
+identifier(ptr->getIdentifier()), value(ptr)
+{}
 
+Symbol::Symbol(): type(ast::IdType::Variable), dataType(ast::DataType::Int)
+{}
