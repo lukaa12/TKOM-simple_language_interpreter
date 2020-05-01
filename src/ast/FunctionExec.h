@@ -14,7 +14,7 @@ namespace tkom {
 				return function;
 			}
 
-			void setFunctionCall(std::shared_ptr<FunctionCall>& ptr)
+			void setFunctionCall(const std::shared_ptr<FunctionCall>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->function = ptr;

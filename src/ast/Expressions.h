@@ -16,7 +16,7 @@ namespace tkom {
 				return expression;
 			}
 
-			void setExpression(std::shared_ptr<Expression>& ptr);
+			void setExpression(const std::shared_ptr<Expression>& ptr);
 
 		private:
 			std::shared_ptr<Expression> expression;
@@ -63,7 +63,7 @@ namespace tkom {
 		class MultiplicativeExpression : public Node
 		{
 		public:
-			void addComponent(std::shared_ptr<PrimaryExpression>& component)
+			void addComponent(const std::shared_ptr<PrimaryExpression>& component)
 			{
 				component->parent = std::make_shared<Node>(*this);
 				components.push_back(component);

@@ -76,7 +76,7 @@ namespace tkom {
 #include "Conditions.h"
 #include "Instruction.h"
 #include "RightValue.h"
-#include "AsignStatement.h"
+#include "AssignStatement.h"
 #include "Body.h"
 #include "CallDef.h"
 #include "FunctionDef.h"

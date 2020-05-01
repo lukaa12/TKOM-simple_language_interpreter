@@ -20,7 +20,9 @@ namespace tkom {
 
 		void advance();
 		ast::DataType getDataType();
+		ast::RelationOperator getRelationOper();
 		bool checkType(const Token::Type& type);
+		void requireType(std::initializer_list<Token::Type> types);
 
 		std::shared_ptr<ast::FunctionDef> readFunctionDef();
 		std::shared_ptr<ast::CallDef> readCallDef();
@@ -30,7 +32,7 @@ namespace tkom {
 		std::shared_ptr<ast::Instruction> readInstruction();
 		std::shared_ptr<ast::IfStatement> readIfStatement();
 		std::shared_ptr<ast::WhileLoop> readWhileLoop();
-		std::shared_ptr<ast::AsignStatement> readAsignStatement();
+		std::shared_ptr<ast::AssignStatement> readAssignStatement();
 		std::shared_ptr<ast::InitStatement> readInitStatement();
 		std::shared_ptr<ast::FunctionExec> readFunctionExec();
 		std::shared_ptr<ast::ReturnStatement> readReturnStatement();

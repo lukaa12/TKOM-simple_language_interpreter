@@ -35,10 +35,22 @@ namespace tkom {
 			}
 
 			template<typename T>
-			void setValue(T& val)
+			void setValue(T val)
 			{
 				if (typeid(val) == typeid(std::shared_ptr<FunctionCall>) || typeid(val) == typeid(std::shared_ptr<Expression>))
 					val->parent = std::make_shared<Node>(*this);
+				value = val;
+			}
+
+			template<>
+			void setValue(std::string val)
+			{
+				value = val;
+			}
+
+			template<>
+			void setValue(int val)
+			{
 				value = val;
 			}
 

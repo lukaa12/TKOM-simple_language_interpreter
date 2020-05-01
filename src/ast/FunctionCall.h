@@ -24,7 +24,7 @@ namespace tkom {
 				return callOperator;
 			}
 
-			void steCallOperator(std::shared_ptr<CallOperator>& ptr)
+			void setCallOperator(const std::shared_ptr<CallOperator>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				callOperator = ptr;

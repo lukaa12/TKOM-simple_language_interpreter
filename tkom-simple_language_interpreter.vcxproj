@@ -243,7 +243,7 @@
     <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ast\AsignStatement.h" />
+    <ClInclude Include="src\ast\AssignStatement.h" />
     <ClInclude Include="src\ast\AstNode.h" />
     <ClInclude Include="src\ast\Body.h" />
     <ClInclude Include="src\ast\CallDef.h" />

@@ -24,19 +24,19 @@ namespace tkom {
 				return elseBody;
 			}
 
-			void setCondition(std::shared_ptr<Condition>& ptr)
+			void setCondition(const std::shared_ptr<Condition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->condition = ptr;
 			}
 
-			void setIfBody(std::shared_ptr<Body>& ptr)
+			void setIfBody(const std::shared_ptr<Body>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->ifBody = ptr;
 			}
 
-			void setElseBody(std::shared_ptr<Body>& ptr)
+			void setElseBody(const std::shared_ptr<Body>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->elseBody = ptr;

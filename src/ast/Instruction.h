@@ -12,7 +12,7 @@ namespace tkom {
 			enum class Type {
 				If,
 				While,
-				Asign,
+				Assign,
 				Init,
 				FuncExec,
 				Return,

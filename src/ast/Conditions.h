@@ -11,7 +11,7 @@ namespace tkom {
 		class BracesCondition : public Node
 		{
 		public:
-			void setCondition(std::shared_ptr<Condition>& ptr);
+			void setCondition(const std::shared_ptr<Condition>& ptr);
 
 			std::shared_ptr<Condition> getCondition()
 			{
@@ -70,7 +70,7 @@ namespace tkom {
 				return first;
 			}
 
-			void setFirst(std::shared_ptr<PrimaryCondition>& ptr)
+			void setFirst(const std::shared_ptr<PrimaryCondition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				first = ptr;
@@ -81,7 +81,7 @@ namespace tkom {
 				return second;
 			}
 
-			void setSecond(std::shared_ptr<PrimaryCondition>& ptr)
+			void setSecond(const std::shared_ptr<PrimaryCondition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				second = ptr;
@@ -111,7 +111,7 @@ namespace tkom {
 				return relationConditions;
 			}
 
-			void addComponent(std::shared_ptr<RelationCondition>& ptr)
+			void addComponent(const std::shared_ptr<RelationCondition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				relationConditions.push_back(ptr);
@@ -128,7 +128,7 @@ namespace tkom {
 				return andConditions;
 			}
 
-			void addComponent(std::shared_ptr<AndCondition>& ptr)
+			void addComponent(const std::shared_ptr<AndCondition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				andConditions.push_back(ptr);

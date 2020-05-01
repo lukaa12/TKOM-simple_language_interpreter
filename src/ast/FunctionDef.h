@@ -34,7 +34,7 @@ namespace tkom {
 				return requiredArguments;
 			}
 
-			void setCallDef(std::shared_ptr<CallDef>& ptr)
+			void setCallDef(const std::shared_ptr<CallDef>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				requiredArguments = ptr;
@@ -45,7 +45,7 @@ namespace tkom {
 				return functionBody;
 			}
 
-			void seyFunctionBody(std::shared_ptr<Body>& ptr)
+			void seyFunctionBody(const std::shared_ptr<Body>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				functionBody = ptr;

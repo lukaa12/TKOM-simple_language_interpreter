@@ -11,7 +11,7 @@ namespace tkom {
 		{
 		public:
 
-			void addArgument(std::shared_ptr<RightValue>& ptr)
+			void addArgument(const std::shared_ptr<RightValue>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				arguments.push_back(ptr);

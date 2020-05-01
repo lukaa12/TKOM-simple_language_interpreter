@@ -11,13 +11,13 @@ namespace tkom {
 		public:
 			WhileLoop() = default;
 			
-			void setCondition(std::shared_ptr<Condition>& ptr)
+			void setCondition(const std::shared_ptr<Condition>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				condition = ptr;
 			}
 
-			void setBody(std::shared_ptr<Body>& ptr)
+			void setBody(const std::shared_ptr<Body>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->whileBody = ptr;

@@ -21,7 +21,7 @@ namespace tkom {
 				return dataType;
 			}
 
-			void addInitiated(std::pair<std::string, std::shared_ptr<RightValue>>& pair)
+			void addInitiated(const std::pair<std::string, std::shared_ptr<RightValue>>& pair)
 			{
 				if (pair.second == nullptr)
 					pair.second->parent = std::make_shared<Node>(*this);

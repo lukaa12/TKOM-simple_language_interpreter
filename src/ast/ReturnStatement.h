@@ -16,7 +16,7 @@ namespace tkom {
 				return value;
 			}
 
-			void setValue(std::shared_ptr<RightValue>& ptr)
+			void setValue(const std::shared_ptr<RightValue>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 				this->value = ptr;

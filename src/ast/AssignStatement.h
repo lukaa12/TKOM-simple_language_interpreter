@@ -6,7 +6,7 @@
 namespace tkom {
 	namespace ast {
 
-		class AsignStatement : public Instruction
+		class AssignStatement : public Instruction
 		{
 		public:
 			std::string getIdentifier()
@@ -24,14 +24,14 @@ namespace tkom {
 				return rvalue;
 			}
 
-			void setRval(std::shared_ptr<RightValue>& ptr)
+			void setRval(const std::shared_ptr<RightValue>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
 			}
 
 			Type getType()
 			{
-				return Type::Asign;
+				return Type::Assign;
 			}
 
 		private:
