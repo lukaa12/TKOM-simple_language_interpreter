@@ -27,6 +27,7 @@ namespace tkom {
 			void setRval(const std::shared_ptr<RightValue>& ptr)
 			{
 				ptr->parent = std::make_shared<Node>(*this);
+				rvalue = ptr;
 			}
 
 			Type getType()

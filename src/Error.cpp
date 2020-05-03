@@ -27,16 +27,18 @@ Error::Error(const Token& _token, Type _type): info(_token), type(_type)
 	{
 	case Type::UnexpectedToken:
 		if (std::get<Token>(info).getType() == Token::Type::Invalid)
-			whatMessage += "Invalid token: ";
+			whatMessage += "Invalid token";
 		else
-			whatMessage += "Unexpected token: ";
+			whatMessage += "Unexpected token  of type: ";
 		break;
 	case Type::UndefinedReference:
-		whatMessage += "Cannot resolve symbol: ";
+		whatMessage += "Cannot resolve symbol  of type: ";
 		break;
 	default:
 		break;
 	}
+	if (std::get<Token>(info).getType() != Token::Type::Invalid)
+		whatMessage += Token::toString(std::get<Token>(info).getType());
 }
 
 const char* Error::what() const

@@ -56,14 +56,19 @@ namespace tkom {
 		class FunctionCall;
 		class RightValue;
 
-		inline std::ostream& operator<<(std::ostream& o, ast::IdType type)
+		inline std::ostream& operator<<(std::ostream& o, const ast::IdType type)
 		{
 			return o << toString(type);
 		}
 
-		inline std::ostream& operator<<(std::ostream& o, ast::DataType type)
+		inline std::ostream& operator<<(std::ostream& o, const ast::DataType type)
 		{
 			return o << toString(type);
+		}
+
+		inline std::ostream& operator<<(std::ostream& o, const ast::RelationOperator oper)
+		{
+			return o << toString(oper);
 		}
 
 }

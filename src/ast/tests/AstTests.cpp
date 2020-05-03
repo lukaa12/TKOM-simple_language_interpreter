@@ -33,4 +33,12 @@ BOOST_AUTO_TEST_CASE(Expressions_hierarchy)
 	BOOST_CHECK_EQUAL(expr2, expr1->getExpression());
 }
 
+BOOST_AUTO_TEST_CASE(RightVal_test)
+{
+	auto rval = std::make_shared<RightValue>();
+	rval->setType(RightValue::Type::Expression);
+	rval->setValue(std::make_shared<Expression>());
+	BOOST_CHECK_NO_THROW(rval->getValue<std::shared_ptr<Expression>>());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

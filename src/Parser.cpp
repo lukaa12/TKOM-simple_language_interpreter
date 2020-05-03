@@ -23,7 +23,7 @@ std::shared_ptr<ast::Program> Parser::parse()
 std::shared_ptr<ast::FunctionDef> Parser::readFunctionDef()
 {
 	auto func = std::make_shared<ast::FunctionDef>();
-	
+	this->symbolTable.enterScope();
 	func->setReturnType(getDataType());
 	this->advance();
 	this->requireType({ Token::Type::Identifier });
@@ -64,7 +64,6 @@ std::shared_ptr<ast::Body> Parser::readBodyBlock()
 	while (!this->checkType(Token::Type::CurlyClose))
 	{
 		body->addInstruction(readInstruction());
-		this->advance();
 	}
 	this->advance();
 	return body;
@@ -75,9 +74,11 @@ std::shared_ptr<ast::CallOperator> Parser::readCallOperator()
 	auto oper = std::make_shared<ast::CallOperator>();
 	this->requireType({ Token::Type::BracketOpen });
 	this->advance();
-	while (this->checkType(Token::Type::BracketClose))
+	while (!this->checkType(Token::Type::BracketClose))
 	{
 		oper->addArgument(this->readRightValue());
+		if (this->checkType(Token::Type::Comma))
+			this->advance();
 	}
 	this->advance();
 	return oper;
@@ -86,7 +87,8 @@ std::shared_ptr<ast::CallOperator> Parser::readCallOperator()
 std::shared_ptr<ast::Instruction> Parser::readInstruction()
 {
 	this->requireType({ Token::Type::If, Token::Type::While, Token::Type::Identifier, 
-		Token::Type::Return, Token::Type::Break });
+		Token::Type::Return, Token::Type::Break, Token::Type::IntType, Token::Type::StringType,
+		Token::Type::GraphicType, Token::Type::ColorType });
 	if (this->token.getType() == Token::Type::If)
 		return std::shared_ptr<ast::Instruction>(this->readIfStatement());
 	else if (this->token.getType() == Token::Type::While)
@@ -105,6 +107,8 @@ std::shared_ptr<ast::Instruction> Parser::readInstruction()
 		this->advance();
 		return std::make_shared<ast::Instruction>();
 	}
+	else
+		return std::shared_ptr<ast::Instruction>(this->readInitStatement());
 }
 
 std::shared_ptr<ast::IfStatement> Parser::readIfStatement()
@@ -224,17 +228,20 @@ std::shared_ptr<ast::ReturnStatement> Parser::readReturnStatement()
 	this->requireType({ Token::Type::Return });
 	this->advance();
 	statement->setValue(this->readRightValue());
+	this->requireType({ Token::Type::Semicolon });
+	this->advance();
 	return statement;
 }
 
 std::shared_ptr<ast::RightValue> Parser::readRightValue()
 {
 	auto right = std::make_shared<ast::RightValue>();
-	this->requireType({ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Identifier, Token::Type::Minus });
+	this->requireType({ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Identifier, Token::Type::Minus, Token::Type::BracketOpen });
 	if (this->checkType(Token::Type::StringLiteral))
 	{
 		right->setType(ast::RightValue::Type::StringLiteral);
 		right->setValue(this->token.getStrVal());
+		this->advance();
 	}
 	else if (this->checkType(Token::Type::Identifier) && symbolTable.getSymbol(this->token.getStrVal()).dataType != ast::DataType::Int)
 	{
@@ -242,6 +249,7 @@ std::shared_ptr<ast::RightValue> Parser::readRightValue()
 		{
 			right->setType(ast::RightValue::Type::Identifier);
 			right->setValue(this->token.getStrVal());
+			this->advance();
 		}
 		else {
 			right->setType(ast::RightValue::Type::Function);
@@ -276,8 +284,7 @@ std::shared_ptr<ast::Expression> Parser::readExpression()
 	while (this->checkType(Token::Type::Plus) || this->checkType(Token::Type::Minus))
 	{
 		minus = this->checkType(Token::Type::Minus);
-		if (minus)
-			this->advance();
+		this->advance();
 		expr->addComponent(std::make_pair(minus, this->readMultiplicativeExpression()));
 	}
 	return expr;
@@ -311,12 +318,14 @@ std::shared_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 		{
 			expr->setType(ast::PrimaryExpression::Type::Identifier);
 			expr->setValue(this->token.getStrVal());
+			this->advance();
 		}
 	}
 	else if (this->checkType(Token::Type::IntLiteral))
 	{
 		expr->setType(ast::PrimaryExpression::Type::Literal);
 		expr->setValue(this->token.getIntVal());
+		this->advance();
 	}
 	else
 	{

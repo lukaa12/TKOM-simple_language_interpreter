@@ -23,7 +23,7 @@ namespace tkom {
 
 			void addInitiated(const std::pair<std::string, std::shared_ptr<RightValue>>& pair)
 			{
-				if (pair.second == nullptr)
+				if (pair.second != nullptr)
 					pair.second->parent = std::make_shared<Node>(*this);
 				this->initiated.push_back(pair);
 			}

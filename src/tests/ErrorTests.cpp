@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(Error_creation_test2)
 	Token token(Token::Type::Invalid, Token::Position{ 2, 3 });
 	Error error(token, Error::Type::UnexpectedToken);
 
-	BOOST_CHECK_EQUAL(error.what(), "Line: 2 pos: 3 Invalid token: ");
+	BOOST_CHECK_EQUAL(error.what(), "Line: 2 pos: 3 Invalid token");
 }
 
 BOOST_AUTO_TEST_CASE(Error_throwing_test)
