@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(Getting_symbol_from_empty)
 {
 	Scope scope;
 
-	BOOST_CHECK_THROW(scope.getSymbol("id"), std::exception);
+	BOOST_CHECK_EQUAL(scope.getSymbol("id").identifier, "!");
 }
 
 BOOST_AUTO_TEST_CASE(Getting_symbol_from_scope)
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(Trying_to_get_uninitialized_symbol)
 	Scope scope;
 	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
 
-	BOOST_CHECK_THROW(scope.getSymbol("j"), std::exception);
+	BOOST_CHECK_EQUAL(scope.getSymbol("j").identifier, "!");
 }
 
 BOOST_AUTO_TEST_CASE(Redefining_the_symbol)

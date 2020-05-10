@@ -4,25 +4,17 @@ using namespace tkom;
 
 Symbol SymbolTable::getSymbol(std::string id)
 {
-	Symbol symbol;
-	try
-	{
-		if (local.size() == 0)
-			throw std::exception();
+	Symbol symbol(ast::DataType::Int, "!");
+
+	if (local.size() != 0)
 		symbol = local.top().getSymbol(id);
-	}
-	catch (const std::exception&)
-	{
-		try
-		{
-			symbol = this->global.getSymbol(id);
-		}
-		catch (const std::exception&)
-		{
-			throw std::exception("Symbol not found");
-		}
-		return symbol;
-	}
+
+	if (symbol.identifier == "!")
+		symbol = this->global.getSymbol(id);
+
+	if (symbol.identifier == "!")
+		throw std::exception("Undefined reference");
+	
 	return symbol;
 }
 
@@ -52,7 +44,7 @@ Symbol Scope::getSymbol(std::string id)
 {
 	auto symbol = this->symbols.find(id);
 	if (symbol == symbols.end())
-		throw std::exception("Symbol not found");
+		return Symbol(tkom::ast::DataType::Int, "!");
 	return symbol->second;
 }
 

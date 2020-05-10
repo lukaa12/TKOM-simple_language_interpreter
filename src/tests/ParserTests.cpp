@@ -3,14 +3,34 @@
 #include "../Error.h"
 #include <string>
 #include <iostream>
+#include <memory>
 
 using namespace tkom;
 
 BOOST_AUTO_TEST_SUITE(Parser_tests)
 
-BOOST_AUTO_TEST_CASE(Parsing_empty_functions_test)
+class ParserFix
 {
-	std::stringstream in{ R"(
+public: 
+	
+	Parser* getParser(std::string prog) {
+		in.reset(new std::stringstream(prog));
+		reader.reset(new Reader(*in));
+		scanner.reset(new Scanner(*reader));
+		parser.reset(new Parser(*scanner));
+
+		return parser.get();
+	}
+	
+	std::unique_ptr<std::stringstream> in;
+	std::unique_ptr<Reader> reader;
+	std::unique_ptr<Scanner> scanner;
+	std::unique_ptr<Parser> parser;
+};
+
+BOOST_FIXTURE_TEST_CASE(Parsing_empty_functions_test, ParserFix)
+{
+	Parser* parser = getParser(R"(
 int main() 
 {
 
@@ -20,31 +40,22 @@ string fun(int i)
 {
 
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)");
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	BOOST_CHECK_EQUAL(program->getFunctions().size(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_function_with_initialization)
+BOOST_FIXTURE_TEST_CASE(Parsing_function_with_initialization, ParserFix)
 {
-	std::stringstream in{
-R"(int main() 
+	Parser* parser = getParser(R"(int main() 
 {
 	string name;
-})" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+})");
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	BOOST_CHECK_EQUAL(init->getDataType(), ast::DataType::String);
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 1);
@@ -52,21 +63,17 @@ R"(int main()
 	BOOST_CHECK_EQUAL(init->getInitiated()[0].second, nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_initialization_with_assigment)
+BOOST_FIXTURE_TEST_CASE(Parsing_initialization_with_assigment, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	string name = "Grzegorz";
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	BOOST_CHECK_EQUAL(init->getDataType(), ast::DataType::String);
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 1);
@@ -75,90 +82,74 @@ R"(int main()
 	BOOST_CHECK_EQUAL(rVal->getValue<std::string>(), "Grzegorz");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_int_initialization_with_assigment)
+BOOST_FIXTURE_TEST_CASE(Parsing_int_initialization_with_assigment, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int name = 7;
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	auto rVal = init->getInitiated()[0].second;
 	BOOST_CHECK_NO_THROW(rVal->getValue<std::shared_ptr<ast::Expression>>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_multiple_initialization)
+BOOST_FIXTURE_TEST_CASE(Parsing_multiple_initialization, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	string name, surname, fruit = "Banana", title;
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 4);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_assignment)
+BOOST_FIXTURE_TEST_CASE(Parsing_assignment, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int j, i = 7;
 	j = i;
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto assign = std::dynamic_pointer_cast<ast::AssignStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	BOOST_CHECK_EQUAL(assign->getIdentifier(), "j");
 	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<std::shared_ptr<ast::Expression>>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_assignment_with_literal)
+BOOST_FIXTURE_TEST_CASE(Parsing_assignment_with_literal, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	string surname;
 	surname = "Brzêczyszczykiweicz";
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto assign = std::dynamic_pointer_cast<ast::AssignStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	BOOST_CHECK_EQUAL(assign->getIdentifier(), "surname");
 	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<std::string>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_if_statement)
+BOOST_FIXTURE_TEST_CASE(Parsing_if_statement, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -168,14 +159,10 @@ R"(int main()
 		i = 2;
 	}
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
@@ -183,9 +170,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(ifStatement->getElseBody(), nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_if_statement2)
+BOOST_FIXTURE_TEST_CASE(Parsing_if_statement2, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -193,14 +180,10 @@ R"(int main()
 		i = 1;
 
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
@@ -208,9 +191,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(ifStatement->getElseBody(), nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_if_with_else_statement)
+BOOST_FIXTURE_TEST_CASE(Parsing_if_with_else_statement, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -223,14 +206,10 @@ R"(int main()
 		i = 2;
 	}
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
@@ -238,9 +217,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(ifStatement->getElseBody()->getInstructions().size(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_while_loop)
+BOOST_FIXTURE_TEST_CASE(Parsing_while_loop, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int j, i = 0;
@@ -248,23 +227,19 @@ R"(int main()
 		j = i;
 
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	if (whileStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(whileStatement->getBody()->getInstructions().size(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_while_loop2)
+BOOST_FIXTURE_TEST_CASE(Parsing_while_loop2, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int k, j, i = 0;
@@ -275,64 +250,52 @@ R"(int main()
 	}
 
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
 	if (whileStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(whileStatement->getBody()->getInstructions().size(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_return_statement)
+BOOST_FIXTURE_TEST_CASE(Parsing_return_statement, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	return 10;
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto returnStatement = std::dynamic_pointer_cast<ast::ReturnStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	if (returnStatement->getValue() == nullptr)
 		BOOST_FAIL("Value is nullptr");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_break_statement)
+BOOST_FIXTURE_TEST_CASE(Parsing_break_statement, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	while(10 == 10)
 		break;
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
 	if (whileStatement->getBody()->getInstructions()[0]->getType() != ast::Instruction::Type::Break)
 		BOOST_FAIL("Not a break instruction");
 }
 
-BOOST_AUTO_TEST_CASE(Function_with_no_params_exec_test)
+BOOST_FIXTURE_TEST_CASE(Function_with_no_params_exec_test, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(string testFun()
 {
 	return "Test sequence";
@@ -342,24 +305,20 @@ int main()
 {
 	testFun();
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto exec = std::dynamic_pointer_cast<ast::FunctionExec>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[0]);
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getIdentifier(), "testFun");
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 0);
-	BOOST_CHECK_EQUAL(std::get<std::shared_ptr<ast::FunctionDef>>(parser.getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
+	BOOST_CHECK_EQUAL(std::get<std::shared_ptr<ast::FunctionDef>>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
 		program->getFunctions()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_function_with_params_definition)
+BOOST_FIXTURE_TEST_CASE(Parsing_function_with_params_definition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(string testFun(int i, graphic shape)
 {
 	
@@ -369,14 +328,10 @@ int main()
 {
 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto definition = program->getFunctions()[0];
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst().size(), 2);
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[0].first, ast::DataType::Int);
@@ -385,9 +340,9 @@ int main()
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[1].second, "shape");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_function_exec_with_params)
+BOOST_FIXTURE_TEST_CASE(Parsing_function_exec_with_params, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(string testFun(int i, graphic shape)
 {
 	
@@ -399,23 +354,19 @@ int main()
 	graphic circle;
 	testFun(x, circle);
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto exec = std::dynamic_pointer_cast<ast::FunctionExec>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[2]);
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 2);
 	BOOST_CHECK_NO_THROW(exec->getFunctionCall()->getCallOperator()->getArguments()[0]->getValue<std::shared_ptr<ast::Expression>>());
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments()[1]->getValue<std::string>(), "circle");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_primary_expression_with_int_literal)
+BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_int_literal, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -423,14 +374,10 @@ R"(int main()
 	i = 1;
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
@@ -439,9 +386,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing__expression_starting_with_minus)
+BOOST_FIXTURE_TEST_CASE(Parsing__expression_starting_with_minus, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -449,14 +396,10 @@ R"(int main()
 	i = -1;
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
@@ -465,9 +408,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_primary_expression_with_identifier)
+BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_identifier, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j = 1;
@@ -475,14 +418,10 @@ R"(int main()
 	i = j;
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
@@ -491,9 +430,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<std::string>(), "j");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_primary_expression_with_function_call)
+BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_function_call, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int fun()
 {
 	return 1;
@@ -505,14 +444,10 @@ int main()
 	i = fun();
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[1]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
@@ -524,9 +459,9 @@ int main()
 	BOOST_CHECK_EQUAL(functionCall->getIdentifier(), "fun");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_primary_expression_with_bracket_expression)
+BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_bracket_expression, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j = 1;
@@ -534,14 +469,10 @@ R"(int main()
 	i = (j);
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
@@ -551,9 +482,9 @@ R"(int main()
 		BOOST_FAIL("Braces expression is null");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_additive_expression)
+BOOST_FIXTURE_TEST_CASE(Parsing_additive_expression, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j = 1;
@@ -561,14 +492,10 @@ R"(int main()
 	i = j+1 - 100 +9;
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 4);
@@ -578,9 +505,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(expression->getComponents()[3].first, false);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_multiplicative_expression)
+BOOST_FIXTURE_TEST_CASE(Parsing_multiplicative_expression, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j = 1;
@@ -588,14 +515,10 @@ R"(int main()
 	i = j*1/100/9;
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>()->getComponents()[0].second;
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 4);
@@ -604,9 +527,9 @@ R"(int main()
 	BOOST_CHECK_EQUAL(expression->getOperators()[2], true);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_expression)
+BOOST_FIXTURE_TEST_CASE(Parsing_expression, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j = 1;
@@ -614,14 +537,10 @@ R"(int main()
 	i = j * 1 + 100 / (9 - 1);
  	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
 		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 2);
@@ -631,69 +550,57 @@ R"(int main()
 	BOOST_CHECK_NO_THROW(expression->getComponents()[1].second->getComponents()[1]->getValue<std::shared_ptr<ast::BracketExpression>>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_primary_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_primary_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if(i)
 		{} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), false);
 	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::RightValue>>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_negated_primary_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_negated_primary_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if(!i)
 		{} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), true);
 	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::RightValue>>());
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_braces_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_braces_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if((i))
 		{} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), false);
@@ -702,9 +609,9 @@ R"(int main()
 		BOOST_FAIL("Condition in braces is nullptr");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
@@ -713,14 +620,10 @@ R"(int main()
 		
 	} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Less);
@@ -730,153 +633,125 @@ R"(int main()
 		BOOST_FAIL("Second of relation condition is nullptr");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_less_equal_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_less_equal_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if ( i <= 10 ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::LessEqual);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_equal_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_equal_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if ( i == 10 ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Equal);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_not_equal_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_not_equal_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if ( i != 10 ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::NotEqual);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_greater_equal_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_greater_equal_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if ( i >= 10 ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::GreaterEqual);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_relation_greater_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_relation_greater_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i;
 	if ( i > 10 ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Greater);
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_and_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_and_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j;
 	if ( i && 10 && !j ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents().size(), 3);
 	if (condition->getComponents()[0]->getComponents()[0] == nullptr)
 		BOOST_ERROR("Part of and condition is nullptr");
 }
 
-BOOST_AUTO_TEST_CASE(Parsing_or_condition)
+BOOST_FIXTURE_TEST_CASE(Parsing_or_condition, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int i, j;
 	if ( i || 10 && !j ) {} 	
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_NO_THROW(program = parser.parse());
+	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 2);
 	if (condition->getComponents()[0] == nullptr)
 		BOOST_ERROR("Part of or condition is nullptr");
 }
 
-BOOST_AUTO_TEST_CASE(Unexpected_token_test)
+BOOST_FIXTURE_TEST_CASE(Unexpected_token_test, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 
@@ -885,21 +760,17 @@ stringERROR fun(int i)
 {
 
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_EXCEPTION(program = parser.parse(), Error, [](const Error& e)->bool {
+	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 5 pos: 0 Unexpected token  of type: Identifier" }.compare(e.what()) == 0 ? true : false;
 	});
 }
 
-BOOST_AUTO_TEST_CASE(Invalid_token_test)
+BOOST_FIXTURE_TEST_CASE(Invalid_token_test, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 
@@ -908,35 +779,27 @@ string fun(int i)
 {
 	^
 }
-)" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+)" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_EXCEPTION(program = parser.parse(), Error, [](const Error& e)->bool {
+	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 7 pos: 1 Invalid token" }.compare(e.what()) == 0 ? true : false;
 	});
 }
 
-BOOST_AUTO_TEST_CASE(Invalid_equal_sign_token_test)
+BOOST_FIXTURE_TEST_CASE(Invalid_equal_sign_token_test, ParserFix)
 {
-	std::stringstream in{
+	Parser* parser = getParser(
 R"(int main() 
 {
 	int a, b = 7, c = -10;
 	a = b + 1;
 	if(b = c)
 		a = a + 1;
-})" };
-
-	Reader reader{ in };
-	Scanner scanner{ reader };
-	Parser parser{ scanner };
+})" );
 
 	std::shared_ptr<ast::Program> program;
-	BOOST_CHECK_EXCEPTION(program = parser.parse(), Error, [](const Error& e)->bool {
+	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 5 pos: 6 Unexpected token  of type: Assigment" }.compare(e.what()) == 0 ? true : false;
 	});
 }

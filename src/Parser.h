@@ -21,8 +21,9 @@ namespace tkom {
 		void advance();
 		ast::DataType getDataType();
 		ast::RelationOperator getRelationOper();
-		bool checkType(const Token::Type& type);
+		bool checkType(std::initializer_list<Token::Type> types);
 		void requireType(std::initializer_list<Token::Type> types);
+		void requireAndConsume(std::initializer_list<Token::Type> types);
 
 		std::shared_ptr<ast::FunctionDef> readFunctionDef();
 		std::shared_ptr<ast::CallDef> readCallDef();
