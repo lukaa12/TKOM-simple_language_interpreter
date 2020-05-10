@@ -11,15 +11,20 @@ namespace tkom {
 		class BracesCondition : public Node
 		{
 		public:
-			void setCondition(const std::shared_ptr<Condition>& ptr);
+			BracesCondition() = default;
 
-			std::shared_ptr<Condition> getCondition()
+			BracesCondition(std::unique_ptr<Condition> ptr): condition(std::move(ptr))
+			{}
+
+			void setCondition(std::unique_ptr<Condition> ptr);
+
+			const Condition* getCondition()
 			{
-				return condition;
+				return condition.get();
 			}
 
 		private:
-			std::shared_ptr<Condition> condition;
+			std::unique_ptr<Condition> condition;
 		};
 
 		class PrimaryCondition : public Node
@@ -30,12 +35,22 @@ namespace tkom {
 				Bracket
 			};
 
+			PrimaryCondition() = default;
+
+			PrimaryCondition(Type t, bool neg, std::unique_ptr<RightValue> ptr): type(t), negated(neg), 
+				condition(std::move(ptr))
+			{}
+
+			PrimaryCondition(Type t, bool neg, std::unique_ptr<BracesCondition> ptr) : type(t), negated(neg),
+				condition(std::move(ptr))
+			{}
+
 			void setType(Type t)
 			{
 				type = t;
 			}
 
-			Type getType()
+			Type getType() const
 			{
 				return type;
 			}
@@ -45,13 +60,13 @@ namespace tkom {
 				negated = is;
 			}
 
-			bool isNegated()
+			bool isNegated() const
 			{
 				return negated;
 			}
 
 			template<typename T>
-			T getCondition();
+			T* getCondition();
 
 			template<typename T>
 			void setCondition(T val);
@@ -59,32 +74,38 @@ namespace tkom {
 		private: 
 			Type type;
 			bool negated;
-			std::variant<std::shared_ptr<RightValue>, std::shared_ptr<BracesCondition>> condition;
+			std::variant<std::unique_ptr<RightValue>, std::unique_ptr<BracesCondition>> condition;
 		};
 
 		class RelationCondition : public Node
 		{
 		public:
-			std::shared_ptr<PrimaryCondition> getFirst()
+			RelationCondition() = default;
+
+			RelationCondition(std::unique_ptr<PrimaryCondition> _first, std::unique_ptr<PrimaryCondition> _second,
+				const RelationOperator& op): first(std::move(_first)), second(std::move(_second)), relationOper(op)
+			{}
+
+			PrimaryCondition* getFirst()
 			{
-				return first;
+				return first.get();
 			}
 
-			void setFirst(const std::shared_ptr<PrimaryCondition>& ptr)
+			void setFirst(std::unique_ptr<PrimaryCondition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				first = ptr;
+				ptr->parent = this;
+				first = std::move(ptr);
 			}
 
-			std::shared_ptr<PrimaryCondition> getSecond()
+			PrimaryCondition* getSecond()
 			{
-				return second;
+				return second.get();
 			}
 
-			void setSecond(const std::shared_ptr<PrimaryCondition>& ptr)
+			void setSecond(std::unique_ptr<PrimaryCondition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				second = ptr;
+				ptr->parent = this;
+				second = std::move(ptr);
 			}
 
 			void setRelationOper(RelationOperator op)
@@ -98,57 +119,57 @@ namespace tkom {
 			}
 
 		private:
-			std::shared_ptr<PrimaryCondition> first;
+			std::unique_ptr<PrimaryCondition> first;
 			RelationOperator relationOper;
-			std::shared_ptr<PrimaryCondition> second;
+			std::unique_ptr<PrimaryCondition> second;
 		};
 
 		class AndCondition : public Node
 		{
 		public:
-			std::vector<std::shared_ptr<RelationCondition>>& getComponents()
+			std::vector<std::unique_ptr<RelationCondition>>& getComponents()
 			{
 				return relationConditions;
 			}
 
-			void addComponent(const std::shared_ptr<RelationCondition>& ptr)
+			void addComponent(std::unique_ptr<RelationCondition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				relationConditions.push_back(ptr);
+				ptr->parent = this;
+				relationConditions.push_back(std::move(ptr));
 			}
 		private:
-			std::vector<std::shared_ptr<RelationCondition>> relationConditions;
+			std::vector<std::unique_ptr<RelationCondition>> relationConditions;
 		};
 
 		class Condition : public Node
 		{
 		public:
-			std::vector<std::shared_ptr<AndCondition>>& getComponents()
+			std::vector<std::unique_ptr<AndCondition>>& getComponents()
 			{
 				return andConditions;
 			}
 
-			void addComponent(const std::shared_ptr<AndCondition>& ptr)
+			void addComponent(std::unique_ptr<AndCondition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				andConditions.push_back(ptr);
+				ptr->parent = this;
+				andConditions.push_back(std::move(ptr));
 			}
 
 		private:
-			std::vector<std::shared_ptr<AndCondition>> andConditions;
+			std::vector<std::unique_ptr<AndCondition>> andConditions;
 		};
 
 		template<typename T>
-		T PrimaryCondition::getCondition()
+		T* PrimaryCondition::getCondition()
 		{
-			return std::get<T>(condition);
+			return std::get<std::unique_ptr<T>>(condition).get();
 		}
 
 		template<typename T>
 		void PrimaryCondition::setCondition(T val)
 		{
-			val->parent = std::make_shared<Node>(*this);
-			condition = val;
+			val->parent = this;
+			condition = std::move(val);
 		}
 
 	}

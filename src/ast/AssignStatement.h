@@ -19,15 +19,15 @@ namespace tkom {
 				identifier = str;
 			}
 
-			std::shared_ptr<RightValue> getRval()
+			RightValue* getRval()
 			{
-				return rvalue;
+				return rvalue.get();
 			}
 
-			void setRval(const std::shared_ptr<RightValue>& ptr)
+			void setRval(std::unique_ptr<RightValue> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				rvalue = ptr;
+				ptr->parent = this;
+				rvalue = std::move(ptr);
 			}
 
 			Type getType()
@@ -37,7 +37,7 @@ namespace tkom {
 
 		private:
 			std::string identifier;
-			std::shared_ptr<RightValue> rvalue;
+			std::unique_ptr<RightValue> rvalue;
 		};
 
 	}

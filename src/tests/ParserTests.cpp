@@ -42,7 +42,7 @@ string fun(int i)
 }
 )");
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
 	BOOST_CHECK_EQUAL(program->getFunctions().size(), 2);
 }
@@ -54,9 +54,9 @@ BOOST_FIXTURE_TEST_CASE(Parsing_function_with_initialization, ParserFix)
 	string name;
 })");
 
-	std::shared_ptr<ast::Program> program;
+ 	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
+	auto init = dynamic_cast<ast::InitStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(init->getDataType(), ast::DataType::String);
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 1);
 	BOOST_CHECK_EQUAL(init->getInitiated()[0].first, "name");
@@ -72,14 +72,14 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
+	auto init = dynamic_cast<ast::InitStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(init->getDataType(), ast::DataType::String);
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 1);
 	BOOST_CHECK_EQUAL(init->getInitiated()[0].first, "name");
-	auto rVal = init->getInitiated()[0].second;
-	BOOST_CHECK_EQUAL(rVal->getValue<std::string>(), "Grzegorz");
+	auto rVal = init->getInitiated()[0].second.get();
+	BOOST_CHECK_EQUAL(rVal->getValue<std::string>(0), "Grzegorz");
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_int_initialization_with_assigment, ParserFix)
@@ -91,11 +91,11 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
-	auto rVal = init->getInitiated()[0].second;
-	BOOST_CHECK_NO_THROW(rVal->getValue<std::shared_ptr<ast::Expression>>());
+	auto init = dynamic_cast<ast::InitStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
+	auto rVal = init->getInitiated()[0].second.get();
+	BOOST_CHECK_NO_THROW(rVal->getValue<ast::Expression>());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_multiple_initialization, ParserFix)
@@ -107,9 +107,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto init = std::dynamic_pointer_cast<ast::InitStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
+	auto init = dynamic_cast<ast::InitStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(init->getInitiated().size(), 4);
 }
 
@@ -123,11 +123,11 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto assign = std::dynamic_pointer_cast<ast::AssignStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto assign = dynamic_cast<ast::AssignStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	BOOST_CHECK_EQUAL(assign->getIdentifier(), "j");
-	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<std::shared_ptr<ast::Expression>>());
+	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<ast::Expression>());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_assignment_with_literal, ParserFix)
@@ -140,11 +140,11 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto assign = std::dynamic_pointer_cast<ast::AssignStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto assign = dynamic_cast<ast::AssignStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	BOOST_CHECK_EQUAL(assign->getIdentifier(), "surname");
-	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<std::string>());
+	BOOST_CHECK_NO_THROW(assign->getRval()->getValue<std::string>(0));
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_if_statement, ParserFix)
@@ -161,9 +161,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto ifStatement = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(ifStatement->getIfBody()->getInstructions().size(), 2);
@@ -182,9 +182,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto ifStatement = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(ifStatement->getIfBody()->getInstructions().size(), 1);
@@ -208,9 +208,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto ifStatement = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto ifStatement = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	if (ifStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(ifStatement->getIfBody()->getInstructions().size(), 1);
@@ -229,9 +229,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto whileStatement = dynamic_cast<ast::WhileLoop*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	if (whileStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(whileStatement->getBody()->getInstructions().size(), 1);
@@ -252,9 +252,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1]);
+	auto whileStatement = dynamic_cast<ast::WhileLoop*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get());
 	if (whileStatement->getCondition() == nullptr)
 		BOOST_FAIL("Condition is nullptr");
 	BOOST_CHECK_EQUAL(whileStatement->getBody()->getInstructions().size(), 2);
@@ -269,9 +269,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto returnStatement = std::dynamic_pointer_cast<ast::ReturnStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
+	auto returnStatement = dynamic_cast<ast::ReturnStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
 	if (returnStatement->getValue() == nullptr)
 		BOOST_FAIL("Value is nullptr");
 }
@@ -286,9 +286,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto whileStatement = std::dynamic_pointer_cast<ast::WhileLoop>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0]);
+	auto whileStatement = dynamic_cast<ast::WhileLoop*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[0].get());
 	if (whileStatement->getBody()->getInstructions()[0]->getType() != ast::Instruction::Type::Break)
 		BOOST_FAIL("Not a break instruction");
 }
@@ -307,13 +307,13 @@ int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto exec = std::dynamic_pointer_cast<ast::FunctionExec>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[0]);
+	auto exec = dynamic_cast<ast::FunctionExec*>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getIdentifier(), "testFun");
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 0);
-	BOOST_CHECK_EQUAL(std::get<std::shared_ptr<ast::FunctionDef>>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
-		program->getFunctions()[0]);
+	BOOST_CHECK_EQUAL(std::get<ast::FunctionDef*>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
+		program->getFunctions()[0].get());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_function_with_params_definition, ParserFix)
@@ -330,9 +330,9 @@ int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto definition = program->getFunctions()[0];
+	auto definition = program->getFunctions()[0].get();
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst().size(), 2);
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[0].first, ast::DataType::Int);
 	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[0].second, "i");
@@ -356,12 +356,12 @@ int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto exec = std::dynamic_pointer_cast<ast::FunctionExec>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[2]);
+	auto exec = dynamic_cast<ast::FunctionExec*>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[2].get());
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 2);
-	BOOST_CHECK_NO_THROW(exec->getFunctionCall()->getCallOperator()->getArguments()[0]->getValue<std::shared_ptr<ast::Expression>>());
-	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments()[1]->getValue<std::string>(), "circle");
+	BOOST_CHECK_NO_THROW(exec->getFunctionCall()->getCallOperator()->getArguments()[0]->getValue<ast::Expression>());
+	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments()[1]->getValue<std::string>(0), "circle");
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_int_literal, ParserFix)
@@ -376,14 +376,14 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 1);
-	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(), 1);
+	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(0), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing__expression_starting_with_minus, ParserFix)
@@ -398,14 +398,14 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, true);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 1);
-	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(), 1);
+	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<int>(0), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_identifier, ParserFix)
@@ -420,14 +420,14 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 1);
-	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<std::string>(), "j");
+	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents()[0]->getValue<std::string>(0), "j");
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_primary_expression_with_function_call, ParserFix)
@@ -446,14 +446,14 @@ int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[1]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[1]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 1);
-	auto functionCall = expression->getComponents()[0].second->getComponents()[0]->getValue<std::shared_ptr<ast::FunctionCall>>();
+	auto functionCall = expression->getComponents()[0].second->getComponents()[0]->getValue<ast::FunctionCall>();
 	if (functionCall == nullptr)
 		BOOST_FAIL("Function call is null");
 	BOOST_CHECK_EQUAL(functionCall->getIdentifier(), "fun");
@@ -471,14 +471,14 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 1);
-	if (expression->getComponents()[0].second->getComponents()[0]->getValue<std::shared_ptr<ast::BracketExpression>>() == nullptr)
+	if (expression->getComponents()[0].second->getComponents()[0]->getValue<ast::BracketExpression>() == nullptr)
 		BOOST_FAIL("Braces expression is null");
 }
 
@@ -494,10 +494,10 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 4);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[1].first, false);
@@ -517,10 +517,12 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>()->getComponents()[0].second;
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get()
+		)->getRval()->getValue<ast::Expression>()->getComponents()[0].second.get();
+
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 4);
 	BOOST_CHECK_EQUAL(expression->getOperators()[0], false);
 	BOOST_CHECK_EQUAL(expression->getOperators()[1], true);
@@ -539,15 +541,15 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto expression = std::dynamic_pointer_cast<ast::AssignStatement>(
-		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getRval()->getValue<std::shared_ptr<ast::Expression>>();
+	auto expression = dynamic_cast<ast::AssignStatement*>(
+		program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getRval()->getValue<ast::Expression>();
 	BOOST_CHECK_EQUAL(expression->getComponents().size(), 2);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[1].first, false);
 	BOOST_CHECK_EQUAL(expression->getComponents()[0].second->getComponents().size(), 2);
-	BOOST_CHECK_NO_THROW(expression->getComponents()[1].second->getComponents()[1]->getValue<std::shared_ptr<ast::BracketExpression>>());
+	BOOST_CHECK_NO_THROW(expression->getComponents()[1].second->getComponents()[1]->getValue<ast::BracketExpression>());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_primary_condition, ParserFix)
@@ -561,12 +563,12 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), false);
-	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::RightValue>>());
+	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<ast::RightValue>());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_negated_primary_condition, ParserFix)
@@ -580,12 +582,12 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), true);
-	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::RightValue>>());
+	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<ast::RightValue>());
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_braces_condition, ParserFix)
@@ -599,13 +601,13 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getFirst()->isNegated(), false);
-	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::BracesCondition>>());
-	if (condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<std::shared_ptr<ast::BracesCondition>>()->getCondition() == nullptr)
+	BOOST_CHECK_NO_THROW(condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<ast::BracesCondition>());
+	if (condition->getComponents()[0]->getComponents()[0]->getFirst()->getCondition<ast::BracesCondition>()->getCondition() == nullptr)
 		BOOST_FAIL("Condition in braces is nullptr");
 }
 
@@ -622,9 +624,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 1);
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Less);
 	if (condition->getComponents()[0]->getComponents()[0]->getFirst() == nullptr)
@@ -643,9 +645,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::LessEqual);
 }
 
@@ -659,9 +661,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Equal);
 }
 
@@ -675,9 +677,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::NotEqual);
 }
 
@@ -691,9 +693,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::GreaterEqual);
 }
 
@@ -707,9 +709,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents()[0]->getRelationOper(), ast::RelationOperator::Greater);
 }
 
@@ -723,9 +725,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents()[0]->getComponents().size(), 3);
 	if (condition->getComponents()[0]->getComponents()[0] == nullptr)
 		BOOST_ERROR("Part of and condition is nullptr");
@@ -741,9 +743,9 @@ R"(int main()
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
-	auto condition = std::dynamic_pointer_cast<ast::IfStatement>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1])->getCondition();
+	auto condition = dynamic_cast<ast::IfStatement*>(program->getFunctions()[0]->getFunctionBody()->getInstructions()[1].get())->getCondition();
 	BOOST_CHECK_EQUAL(condition->getComponents().size(), 2);
 	if (condition->getComponents()[0] == nullptr)
 		BOOST_ERROR("Part of or condition is nullptr");
@@ -762,7 +764,7 @@ stringERROR fun(int i)
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 5 pos: 0 Unexpected token  of type: Identifier" }.compare(e.what()) == 0 ? true : false;
 	});
@@ -781,7 +783,7 @@ string fun(int i)
 }
 )" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 7 pos: 1 Invalid token" }.compare(e.what()) == 0 ? true : false;
 	});
@@ -798,7 +800,7 @@ R"(int main()
 		a = a + 1;
 })" );
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 5 pos: 6 Unexpected token  of type: Assigment" }.compare(e.what()) == 0 ? true : false;
 	});

@@ -29,7 +29,13 @@ namespace tkom {
 			}
 
 			template<typename T>
-			T getValue()
+			T* getValue()
+			{
+				return std::get<std::unique_ptr<T>>(value).get();
+			}
+
+			template<typename T>
+			T getValue(int)
 			{
 				return std::get<T>(value);
 			}
@@ -37,9 +43,9 @@ namespace tkom {
 			template<typename T>
 			void setValue(T val)
 			{
-				if (typeid(val) == typeid(std::shared_ptr<FunctionCall>) || typeid(val) == typeid(std::shared_ptr<Expression>))
-					val->parent = std::make_shared<Node>(*this);
-				value = val;
+				if (typeid(val) == typeid(std::unique_ptr<FunctionCall>) || typeid(val) == typeid(std::unique_ptr<Expression>))
+					val->parent = this;
+				value = std::move(val);
 			}
 
 			template<>
@@ -56,7 +62,7 @@ namespace tkom {
 
 		private:
 			Type type;
-			std::variant<int, std::string, std::shared_ptr<FunctionCall>, std::shared_ptr<Expression>> value;
+			std::variant<int, std::string, std::unique_ptr<FunctionCall>, std::unique_ptr<Expression>> value;
 		};
 
 	}

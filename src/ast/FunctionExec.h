@@ -9,15 +9,15 @@ namespace tkom {
 		class FunctionExec : public Instruction
 		{
 		public:
-			std::shared_ptr<FunctionCall> getFunctionCall()
+			FunctionCall* getFunctionCall()
 			{
-				return function;
+				return function.get();
 			}
 
-			void setFunctionCall(const std::shared_ptr<FunctionCall>& ptr)
+			void setFunctionCall(std::unique_ptr<FunctionCall> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				this->function = ptr;
+				ptr->parent = this;
+				this->function = std::move(ptr);
 			}
 
 			Type getType()
@@ -26,7 +26,7 @@ namespace tkom {
 			}
 
 		private:
-			std::shared_ptr<FunctionCall> function;
+			std::unique_ptr<FunctionCall> function;
 		};
 
 	}

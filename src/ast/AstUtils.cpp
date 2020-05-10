@@ -50,14 +50,14 @@ std::string tkom::ast::toString(const DataType& type)
 	return "Unknown";
 }
 
-void BracketExpression::setExpression(const std::shared_ptr<Expression>& ptr)
+void BracketExpression::setExpression(std::unique_ptr<Expression> ptr)
 {
-	ptr->parent = std::make_shared<Node>(*this);
-	expression = ptr;
+	ptr->parent = this;
+	expression = std::move(ptr);
 }
 
-void BracesCondition::setCondition(const std::shared_ptr<Condition>& ptr)
+void BracesCondition::setCondition(std::unique_ptr<Condition> ptr)
 {
-	ptr->parent = std::make_shared<Node>(*this);
-	condition = ptr;
+	ptr->parent = this;
+	condition = std::move(ptr);
 }

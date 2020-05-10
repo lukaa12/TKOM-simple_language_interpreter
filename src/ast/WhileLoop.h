@@ -11,26 +11,26 @@ namespace tkom {
 		public:
 			WhileLoop() = default;
 			
-			void setCondition(const std::shared_ptr<Condition>& ptr)
+			void setCondition(std::unique_ptr<Condition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				condition = ptr;
+				ptr->parent = this;
+				condition = std::move(ptr);
 			}
 
-			void setBody(const std::shared_ptr<Body>& ptr)
+			void setBody(std::unique_ptr<Body> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				this->whileBody = ptr;
+				ptr->parent = this;
+				this->whileBody = std::move(ptr);
 			}
 
-			std::shared_ptr<Condition> getCondition()
+			Condition* getCondition()
 			{
-				return condition;
+				return condition.get();
 			}
 
-			std::shared_ptr<Body> getBody()
+			Body* getBody()
 			{
-				return whileBody;
+				return whileBody.get();
 			}
 
 			Type getType()
@@ -38,8 +38,8 @@ namespace tkom {
 				return Type::While;
 			}
 		private:
-			std::shared_ptr<Condition> condition;
-			std::shared_ptr<Body> whileBody;
+			std::unique_ptr<Condition> condition;
+			std::unique_ptr<Body> whileBody;
 		};
 
 	}

@@ -11,19 +11,19 @@ namespace tkom {
 		{
 		public:
 
-			void addArgument(const std::shared_ptr<RightValue>& ptr)
+			void addArgument(std::unique_ptr<RightValue> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				arguments.push_back(ptr);
+				ptr->parent = this;
+				arguments.push_back(std::move(ptr));
 			}
 
-			std::vector<std::shared_ptr<RightValue>>& getArguments()
+			std::vector<std::unique_ptr<RightValue>>& getArguments()
 			{
 				return arguments;
 			}
 
 		private:
-			std::vector<std::shared_ptr<RightValue>> arguments;
+			std::vector<std::unique_ptr<RightValue>> arguments;
 		};
 
 	}

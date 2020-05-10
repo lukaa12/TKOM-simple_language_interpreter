@@ -38,7 +38,8 @@ namespace tkom {
 		class Node 
 		{
 		public:
-			Node() = default;
+			Node(): parent(nullptr)
+			{}
 
 			virtual std::string toString()
 			{
@@ -49,7 +50,7 @@ namespace tkom {
 				throw std::exception("TODO");
 			}
 		
-			std::weak_ptr<Node> parent;
+			Node* parent;
 		};
 
 		class CallOperator;

@@ -21,14 +21,14 @@ namespace tkom {
 				return dataType;
 			}
 
-			void addInitiated(const std::pair<std::string, std::shared_ptr<RightValue>>& pair)
+			void addInitiated(std::pair<std::string, std::unique_ptr<RightValue>> pair)
 			{
 				if (pair.second != nullptr)
-					pair.second->parent = std::make_shared<Node>(*this);
-				this->initiated.push_back(pair);
+					pair.second->parent = this;
+				this->initiated.push_back(std::move(pair));
 			}
 
-			std::vector<std::pair<std::string, std::shared_ptr<RightValue>>>& getInitiated()
+			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>>& getInitiated()
 			{
 				return initiated;
 			}
@@ -40,7 +40,7 @@ namespace tkom {
 
 		private:
 			DataType dataType;
-			std::vector<std::pair<std::string, std::shared_ptr<RightValue>>> initiated;
+			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>> initiated;
 		};
 
 	}

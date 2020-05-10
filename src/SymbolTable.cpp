@@ -57,7 +57,7 @@ void Scope::addSymbol(const Symbol& symbol)
 Symbol::Symbol(ast::DataType _dtype, std::string _id): type(ast::IdType::Variable), dataType(_dtype), identifier(_id)
 {}
 
-Symbol::Symbol(std::shared_ptr<ast::FunctionDef> ptr): type(ast::IdType::Function), dataType(ptr->getReturnType()),
+Symbol::Symbol(ast::FunctionDef* ptr): type(ast::IdType::Function), dataType(ptr->getReturnType()),
 identifier(ptr->getIdentifier()), value(ptr)
 {}
 

@@ -22,6 +22,9 @@ namespace tkom {
 			{
 				return Type::Break;
 			}
+
+			virtual ~Instruction()
+			{}
 		};
 
 	}

@@ -6,23 +6,23 @@ using namespace tkom;
 Parser::Parser(Scanner& _scanner): scanner(_scanner), token()
 {}
 
-std::shared_ptr<ast::Program> Parser::parse()
+std::unique_ptr<ast::Program> Parser::parse()
 {
-	auto program = std::make_shared<ast::Program>();
+	auto program = std::make_unique<ast::Program>();
 	this->advance();
 	while (this->token.getType() != Token::Type::Eof)
 	{
 		auto func = this->readFunctionDef();
-		this->symbolTable.addGlobalSymbol(Symbol(func));
-		program->addFunction(func);
+		this->symbolTable.addGlobalSymbol(Symbol(func.get()));
+		program->addFunction(std::move(func));
 	}
 
 	return program;
 }
 
-std::shared_ptr<ast::FunctionDef> Parser::readFunctionDef()
+std::unique_ptr<ast::FunctionDef> Parser::readFunctionDef()
 {
-	auto func = std::make_shared<ast::FunctionDef>();
+	auto func = std::make_unique<ast::FunctionDef>();
 	this->symbolTable.enterScope();
 	func->setReturnType(getDataType());
 	this->advance();
@@ -30,13 +30,13 @@ std::shared_ptr<ast::FunctionDef> Parser::readFunctionDef()
 	func->setIdentifier(token.getStrVal());
 	this->advance();
 	func->setCallDef(readCallDef());
-	func->seyFunctionBody(readBodyBlock());
+	func->setFunctionBody(readBodyBlock());
 	return func;
 }
 
-std::shared_ptr<ast::CallDef> Parser::readCallDef()
+std::unique_ptr<ast::CallDef> Parser::readCallDef()
 {
-	auto callDef = std::make_shared<ast::CallDef>();
+	auto callDef = std::make_unique<ast::CallDef>();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
 	while (!this->checkType({ Token::Type::BracketClose }))
@@ -56,9 +56,9 @@ std::shared_ptr<ast::CallDef> Parser::readCallDef()
 	return callDef;
 }
 
-std::shared_ptr<ast::Body> Parser::readBodyBlock()
+std::unique_ptr<ast::Body> Parser::readBodyBlock()
 {
-	auto body = std::make_shared<ast::Body>();
+	auto body = std::make_unique<ast::Body>();
 	this->requireAndConsume({ Token::Type::CurlyOpen });
 
 	while (!this->checkType({ Token::Type::CurlyClose }))
@@ -69,9 +69,9 @@ std::shared_ptr<ast::Body> Parser::readBodyBlock()
 	return body;
 }
 
-std::shared_ptr<ast::CallOperator> Parser::readCallOperator()
+std::unique_ptr<ast::CallOperator> Parser::readCallOperator()
 {
-	auto oper = std::make_shared<ast::CallOperator>();
+	auto oper = std::make_unique<ast::CallOperator>();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
 	while (!this->checkType({ Token::Type::BracketClose }))
@@ -84,36 +84,36 @@ std::shared_ptr<ast::CallOperator> Parser::readCallOperator()
 	return oper;
 }
 
-std::shared_ptr<ast::Instruction> Parser::readInstruction()
+std::unique_ptr<ast::Instruction> Parser::readInstruction()
 {
 	this->requireType({ Token::Type::If, Token::Type::While, Token::Type::Identifier, 
 		Token::Type::Return, Token::Type::Break, Token::Type::IntType, Token::Type::StringType,
 		Token::Type::GraphicType, Token::Type::ColorType });
 	
 	if (this->token.getType() == Token::Type::If)
-		return std::shared_ptr<ast::Instruction>(this->readIfStatement());
+		return std::unique_ptr<ast::Instruction>(this->readIfStatement());
 	else if (this->token.getType() == Token::Type::While)
-		return std::shared_ptr<ast::Instruction>(this->readWhileLoop());
+		return std::unique_ptr<ast::Instruction>(this->readWhileLoop());
 	else if (token.getType() == Token::Type::Identifier)
 		if (symbolTable.getSymbol(token.getStrVal()).type == ast::IdType::Function)
-			return std::shared_ptr<ast::Instruction>(this->readFunctionExec());
+			return std::unique_ptr<ast::Instruction>(this->readFunctionExec());
 		else
-			return std::shared_ptr<ast::Instruction>(this->readAssignStatement());
+			return std::unique_ptr<ast::Instruction>(this->readAssignStatement());
 	else if (token.getType() == Token::Type::Return)
-		return std::shared_ptr<ast::Instruction>(this->readReturnStatement());
+		return std::unique_ptr<ast::Instruction>(this->readReturnStatement());
 	else if (token.getType() == Token::Type::Break)
 	{
 		this->advance();
 		this->requireAndConsume({ Token::Type::Semicolon });
-		return std::make_shared<ast::Instruction>();
+		return std::make_unique<ast::Instruction>();
 	}
 	else
-		return std::shared_ptr<ast::Instruction>(this->readInitStatement());
+		return std::unique_ptr<ast::Instruction>(this->readInitStatement());
 }
 
-std::shared_ptr<ast::IfStatement> Parser::readIfStatement()
+std::unique_ptr<ast::IfStatement> Parser::readIfStatement()
 {
-	auto ifStatement = std::make_shared<ast::IfStatement>();
+	auto ifStatement = std::make_unique<ast::IfStatement>();
 	this->requireAndConsume({ Token::Type::If });
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	ifStatement->setCondition(this->readCondition());
@@ -124,9 +124,9 @@ std::shared_ptr<ast::IfStatement> Parser::readIfStatement()
 		ifStatement->setIfBody(this->readBodyBlock());
 	else
 	{
-		auto instr = std::make_shared<ast::Body>();
+		auto instr = std::make_unique<ast::Body>();
 		instr->addInstruction(this->readInstruction());
-		ifStatement->setIfBody(instr);
+		ifStatement->setIfBody(std::move(instr));
 	}
 	if (this->checkType({ Token::Type::Else }))
 	{
@@ -135,17 +135,17 @@ std::shared_ptr<ast::IfStatement> Parser::readIfStatement()
 			ifStatement->setElseBody(this->readBodyBlock());
 		else
 		{
-			auto instr = std::make_shared<ast::Body>();
+			auto instr = std::make_unique<ast::Body>();
 			instr->addInstruction(this->readInstruction());
-			ifStatement->setIfBody(instr);
+			ifStatement->setIfBody(std::move(instr));
 		}
 	}
 	return ifStatement;
 }
 
-std::shared_ptr<ast::WhileLoop> Parser::readWhileLoop()
+std::unique_ptr<ast::WhileLoop> Parser::readWhileLoop()
 {
-	auto whileLoop = std::make_shared<ast::WhileLoop>();
+	auto whileLoop = std::make_unique<ast::WhileLoop>();
 	this->requireAndConsume({ Token::Type::While });
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
@@ -157,16 +157,16 @@ std::shared_ptr<ast::WhileLoop> Parser::readWhileLoop()
 		whileLoop->setBody(this->readBodyBlock());
 	else
 	{
-		auto instr = std::make_shared<ast::Body>();
+		auto instr = std::make_unique<ast::Body>();
 		instr->addInstruction(this->readInstruction());
-		whileLoop->setBody(instr);
+		whileLoop->setBody(std::move(instr));
 	}
 	return whileLoop;
 }
 
-std::shared_ptr<ast::AssignStatement> Parser::readAssignStatement()
+std::unique_ptr<ast::AssignStatement> Parser::readAssignStatement()
 {
-	auto assign = std::make_shared<ast::AssignStatement>();
+	auto assign = std::make_unique<ast::AssignStatement>();
 	this->requireType({ Token::Type::Identifier });
 	assign->setIdentifier(token.getStrVal());
 	this->advance();
@@ -176,9 +176,9 @@ std::shared_ptr<ast::AssignStatement> Parser::readAssignStatement()
 	return assign;
 }
 
-std::shared_ptr<ast::InitStatement> Parser::readInitStatement()
+std::unique_ptr<ast::InitStatement> Parser::readInitStatement()
 {
-	auto initStatement = std::make_shared<ast::InitStatement>();
+	auto initStatement = std::make_unique<ast::InitStatement>();
 	initStatement->setDataType(this->getDataType());
 
 	do
@@ -194,7 +194,7 @@ std::shared_ptr<ast::InitStatement> Parser::readInitStatement()
 			initStatement->addInitiated(std::make_pair(id, this->readRightValue()));
 		}
 		else {
-			initStatement->addInitiated(std::make_pair(id, std::shared_ptr<ast::RightValue>()));
+			initStatement->addInitiated(std::make_pair(id, std::unique_ptr<ast::RightValue>()));
 		}
 		symbolTable.addLocalSymbol(Symbol(initStatement->getDataType(), id));
 		this->requireType({ Token::Type::Comma, Token::Type::Semicolon });
@@ -204,26 +204,26 @@ std::shared_ptr<ast::InitStatement> Parser::readInitStatement()
 	return initStatement;
 }
 
-std::shared_ptr<ast::FunctionExec> Parser::readFunctionExec()
+std::unique_ptr<ast::FunctionExec> Parser::readFunctionExec()
 {
-	auto exec = std::make_shared<ast::FunctionExec>();
+	auto exec = std::make_unique<ast::FunctionExec>();
 	exec->setFunctionCall(this->readFunctionCall());
 	this->requireAndConsume({ Token::Type::Semicolon });
 	return exec;
 }
 
-std::shared_ptr<ast::ReturnStatement> Parser::readReturnStatement()
+std::unique_ptr<ast::ReturnStatement> Parser::readReturnStatement()
 {
-	auto statement = std::make_shared<ast::ReturnStatement>();
+	auto statement = std::make_unique<ast::ReturnStatement>();
 	this->requireAndConsume({ Token::Type::Return });
 	statement->setValue(this->readRightValue());
 	this->requireAndConsume({ Token::Type::Semicolon });
 	return statement;
 }
 
-std::shared_ptr<ast::RightValue> Parser::readRightValue()
+std::unique_ptr<ast::RightValue> Parser::readRightValue()
 {
-	auto right = std::make_shared<ast::RightValue>();
+	auto right = std::make_unique<ast::RightValue>();
 	this->requireType({ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Identifier, Token::Type::Minus, Token::Type::BracketOpen });
 	if (this->checkType({ Token::Type::StringLiteral }))
 	{
@@ -251,9 +251,9 @@ std::shared_ptr<ast::RightValue> Parser::readRightValue()
 	return right;
 }
 
-std::shared_ptr<ast::FunctionCall> Parser::readFunctionCall()
+std::unique_ptr<ast::FunctionCall> Parser::readFunctionCall()
 {
-	auto call = std::make_shared<ast::FunctionCall>();
+	auto call = std::make_unique<ast::FunctionCall>();
 	this->requireType({ Token::Type::Identifier });
 	call->setIdentifier(this->token.getStrVal());
 	this->advance();
@@ -261,9 +261,9 @@ std::shared_ptr<ast::FunctionCall> Parser::readFunctionCall()
 	return call;
 }
 
-std::shared_ptr<ast::Expression> Parser::readExpression()
+std::unique_ptr<ast::Expression> Parser::readExpression()
 {
-	auto expr = std::make_shared<ast::Expression>();
+	auto expr = std::make_unique<ast::Expression>();
 	bool minus = false;
 	minus = this->checkType({ Token::Type::Minus });
 	if (minus)
@@ -278,9 +278,9 @@ std::shared_ptr<ast::Expression> Parser::readExpression()
 	return expr;
 }
 
-std::shared_ptr<ast::MultiplicativeExpression> Parser::readMultiplicativeExpression()
+std::unique_ptr<ast::MultiplicativeExpression> Parser::readMultiplicativeExpression()
 {
-	auto expr = std::make_shared<ast::MultiplicativeExpression>();
+	auto expr = std::make_unique<ast::MultiplicativeExpression>();
 	expr->addComponent(this->readPrimaryExpression());
 	while (this->checkType({ Token::Type::Multiply, Token::Type::Divide }))
 	{
@@ -291,9 +291,9 @@ std::shared_ptr<ast::MultiplicativeExpression> Parser::readMultiplicativeExpress
 	return expr;
 }
 
-std::shared_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
+std::unique_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 {
-	auto expr = std::make_shared<ast::PrimaryExpression>();
+	auto expr = std::make_unique<ast::PrimaryExpression>();
 	this->requireType({ Token::Type::Identifier, Token::Type::IntLiteral, Token::Type::BracketOpen });
 	if (this->checkType({ Token::Type::Identifier }))
 	{
@@ -323,9 +323,9 @@ std::shared_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 	return expr;
 }
 
-std::shared_ptr<ast::BracketExpression> Parser::readBracketExpression()
+std::unique_ptr<ast::BracketExpression> Parser::readBracketExpression()
 {
-	auto expr = std::make_shared<ast::BracketExpression>();
+	auto expr = std::make_unique<ast::BracketExpression>();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	expr->setExpression(this->readExpression());
 	this->requireAndConsume({ Token::Type::BracketClose });
@@ -333,9 +333,9 @@ std::shared_ptr<ast::BracketExpression> Parser::readBracketExpression()
 }
 
 
-std::shared_ptr<ast::Condition> Parser::readCondition()
+std::unique_ptr<ast::Condition> Parser::readCondition()
 {
-	auto cond = std::make_shared<ast::Condition>();
+	auto cond = std::make_unique<ast::Condition>();
 	cond->addComponent(this->readAndCondition());
 	while (this->checkType({ Token::Type::Or }))
 	{
@@ -345,9 +345,9 @@ std::shared_ptr<ast::Condition> Parser::readCondition()
 	return cond;
 }
 
-std::shared_ptr<ast::AndCondition> Parser::readAndCondition()
+std::unique_ptr<ast::AndCondition> Parser::readAndCondition()
 {
-	auto cond = std::make_shared<ast::AndCondition>();
+	auto cond = std::make_unique<ast::AndCondition>();
 	cond->addComponent(this->readRelationCondition());
 	while (this->checkType({ Token::Type::And }))
 	{
@@ -357,9 +357,9 @@ std::shared_ptr<ast::AndCondition> Parser::readAndCondition()
 	return cond;
 }
 
-std::shared_ptr<ast::RelationCondition> Parser::readRelationCondition()
+std::unique_ptr<ast::RelationCondition> Parser::readRelationCondition()
 {
-	auto cond = std::make_shared<ast::RelationCondition>();
+	auto cond = std::make_unique<ast::RelationCondition>();
 	cond->setFirst(this->readPrimaryCondition());
 	ast::RelationOperator oper;
 	
@@ -377,9 +377,9 @@ std::shared_ptr<ast::RelationCondition> Parser::readRelationCondition()
 	return cond;
 }
 
-std::shared_ptr<ast::PrimaryCondition> Parser::readPrimaryCondition()
+std::unique_ptr<ast::PrimaryCondition> Parser::readPrimaryCondition()
 {
-	auto cond = std::make_shared<ast::PrimaryCondition>();
+	auto cond = std::make_unique<ast::PrimaryCondition>();
 	if (this->checkType({ Token::Type::Negation }))
 	{
 		cond->setNegated(true);
@@ -398,9 +398,9 @@ std::shared_ptr<ast::PrimaryCondition> Parser::readPrimaryCondition()
 	return cond;
 }
 
-std::shared_ptr<ast::BracesCondition> Parser::readBracesCondition()
+std::unique_ptr<ast::BracesCondition> Parser::readBracesCondition()
 {
-	auto cond = std::make_shared<ast::BracesCondition>();
+	auto cond = std::make_unique<ast::BracesCondition>();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	cond->setCondition(this->readCondition());
 	this->requireAndConsume({ Token::Type::BracketClose });

@@ -15,10 +15,10 @@ namespace tkom {
 		ast::IdType type;
 		ast::DataType dataType;
 		std::string identifier;
-		std::variant<int, std::string, std::shared_ptr<ast::FunctionDef>> value;
+		std::variant<int, std::string, ast::FunctionDef*> value;
 
 		Symbol(ast::DataType _dtype, std::string _id);
-		Symbol(std::shared_ptr<ast::FunctionDef> ptr);
+		Symbol(ast::FunctionDef* ptr);
 		Symbol();
 	};
 

@@ -14,7 +14,7 @@ int main()
 	Scanner scanner{ reader };
 	Parser parser{ scanner };
 
-	std::shared_ptr<ast::Program> program;
+	std::unique_ptr<ast::Program> program;
 
 	try
 	{

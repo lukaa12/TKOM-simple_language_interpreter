@@ -19,20 +19,20 @@ namespace tkom {
 				identifier = id;
 			}
 
-			std::shared_ptr<CallOperator> getCallOperator()
+			CallOperator* getCallOperator()
 			{
-				return callOperator;
+				return callOperator.get();
 			}
 
-			void setCallOperator(const std::shared_ptr<CallOperator>& ptr)
+			void setCallOperator(std::unique_ptr<CallOperator> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				callOperator = ptr;
+				ptr->parent = this;
+				callOperator = std::move(ptr);
 			}
 
 		private:
 			std::string identifier;
-			std::shared_ptr<CallOperator> callOperator;
+			std::unique_ptr<CallOperator> callOperator;
 		};
 
 	}

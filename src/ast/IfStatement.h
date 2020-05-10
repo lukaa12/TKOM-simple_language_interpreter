@@ -9,37 +9,37 @@ namespace tkom {
 		class IfStatement : public Instruction
 		{
 		public:
-			std::shared_ptr<Condition> getCondition()
+			Condition* getCondition()
 			{
-				return condition;
+				return condition.get();
 			}
 
-			std::shared_ptr<Body> getIfBody()
+			Body* getIfBody()
 			{
-				return ifBody;
+				return ifBody.get();
 			}
 
-			std::shared_ptr<Body> getElseBody()
+			Body* getElseBody()
 			{
-				return elseBody;
+				return elseBody.get();
 			}
 
-			void setCondition(const std::shared_ptr<Condition>& ptr)
+			void setCondition(std::unique_ptr<Condition> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				this->condition = ptr;
+				ptr->parent = this;
+				this->condition = std::move(ptr);
 			}
 
-			void setIfBody(const std::shared_ptr<Body>& ptr)
+			void setIfBody(std::unique_ptr<Body> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				this->ifBody = ptr;
+				ptr->parent = this;
+				this->ifBody = std::move(ptr);
 			}
 
-			void setElseBody(const std::shared_ptr<Body>& ptr)
+			void setElseBody(std::unique_ptr<Body> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				this->elseBody = ptr;
+				ptr->parent = this;
+				this->elseBody = std::move(ptr);
 			}
 
 			Type getType()
@@ -48,9 +48,9 @@ namespace tkom {
 			}
 
 		private:
-			std::shared_ptr<Condition> condition;
-			std::shared_ptr<Body> ifBody;
-			std::shared_ptr<Body> elseBody;
+			std::unique_ptr<Condition> condition;
+			std::unique_ptr<Body> ifBody;
+			std::unique_ptr<Body> elseBody;
 		};
 
 	}

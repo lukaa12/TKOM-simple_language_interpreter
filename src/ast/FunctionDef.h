@@ -29,33 +29,33 @@ namespace tkom {
 				identifier = id;
 			}
 
-			std::shared_ptr<CallDef> getCallDef()
+			CallDef* getCallDef()
 			{
-				return requiredArguments;
+				return requiredArguments.get();
 			}
 
-			void setCallDef(const std::shared_ptr<CallDef>& ptr)
+			void setCallDef(std::unique_ptr<CallDef> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				requiredArguments = ptr;
+				ptr->parent = this;
+				requiredArguments = std::move(ptr);
 			}
 
-			std::shared_ptr<Body> getFunctionBody()
+			Body* getFunctionBody()
 			{
-				return functionBody;
+				return functionBody.get();
 			}
 
-			void seyFunctionBody(const std::shared_ptr<Body>& ptr)
+			void setFunctionBody(std::unique_ptr<Body> ptr)
 			{
-				ptr->parent = std::make_shared<Node>(*this);
-				functionBody = ptr;
+				ptr->parent = this;
+				functionBody = std::move(ptr);
 			}
 
 		private:
 			DataType returnType;
 			std::string identifier;
-			std::shared_ptr<CallDef> requiredArguments;
-			std::shared_ptr<Body> functionBody;
+			std::unique_ptr<CallDef> requiredArguments;
+			std::unique_ptr<Body> functionBody;
 		};
 
 	}
