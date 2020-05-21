@@ -40,6 +40,12 @@ void SymbolTable::leaveScope()
 	local.pop();
 }
 
+void SymbolTable::leaveAllScopes()
+{
+	while (local.size() != 0)
+		local.pop();
+}
+
 Symbol Scope::getSymbol(std::string id)
 {
 	auto symbol = this->symbols.find(id);

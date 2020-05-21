@@ -40,18 +40,37 @@ BOOST_FIXTURE_TEST_CASE(Symbol_table_test, ExecutionFix)
 	auto program = getProgram(R"(
 int main() 
 {
-
+	int x = 0;
 }
 
 string fun(int i)
 {
-
+	string name = "Imie";
 }
 )");
 	
 	
 	Executor executor{ program.release() };
+	BOOST_CHECK_NO_THROW(executor.symbolTable.getSymbol("main"));
+	BOOST_CHECK_NO_THROW(executor.symbolTable.getSymbol("fun"));
+	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("x"), std::exception);
+	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("name"), std::exception);
 
+}
+
+BOOST_FIXTURE_TEST_CASE(No_main_function_test, ExecutionFix)
+{
+	auto program = getProgram(R"(
+string fun(int i)
+{
+	string name = "Imie";
+}
+)");
+
+	Executor executor{ program.release() };
+	BOOST_CHECK_EXCEPTION(executor.execute(), Error, [](const Error& e)->bool {
+		return std::string{ "Main function not found" }.compare(e.what()) == 0 ? true : false;
+	});
 }
 
 BOOST_AUTO_TEST_SUITE_END()

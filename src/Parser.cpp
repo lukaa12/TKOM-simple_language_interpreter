@@ -17,6 +17,7 @@ std::unique_ptr<ast::Program> Parser::parse()
 		this->symbolTable.addGlobalSymbol(Symbol(func.get()));
 		program->addFunction(std::move(func));
 	}
+	this->symbolTable.leaveAllScopes();
 	Executor::symbolTable = symbolTable;
 	return program;
 }

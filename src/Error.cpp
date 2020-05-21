@@ -41,6 +41,19 @@ Error::Error(const Token& _token, Type _type): info(_token), type(_type)
 		whatMessage += Token::toString(std::get<Token>(info).getType());
 }
 
+Error::Error(Type _type): type(_type)
+{
+	switch (this->type)
+	{
+	case Type::MissingMain:
+		whatMessage = "Main function not found";
+		break;
+	default:
+		whatMessage = "Unknown error";
+		break;
+	}
+}
+
 const char* Error::what() const
 {
 	return whatMessage.c_str();

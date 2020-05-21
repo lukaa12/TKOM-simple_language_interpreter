@@ -1,4 +1,6 @@
 #include "AstNode.h"
+#include "../Executor.h"
+#include "../Error.h"
 
 using namespace tkom::ast;
 
@@ -60,4 +62,16 @@ void BracesCondition::setCondition(std::unique_ptr<Condition> ptr)
 {
 	ptr->parent = this;
 	condition = std::move(ptr);
+}
+
+void Program::eval()
+{
+	for(auto it = functions.begin(); it != functions.end(); ++it)
+		if (it->get()->getIdentifier() == "main")
+		{
+			Executor::symbolTable.enterScope();
+			it->get()->eval();
+			return;
+		}
+	throw Error(Error::Type::MissingMain);
 }

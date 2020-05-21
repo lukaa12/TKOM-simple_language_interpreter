@@ -39,6 +39,7 @@ namespace tkom {
 		void addLocalSymbol(const Symbol& symbol);
 		void enterScope();
 		void leaveScope();
+		void leaveAllScopes();
 	private:
 		Scope global;
 		std::stack<Scope> local;

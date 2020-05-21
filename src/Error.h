@@ -14,10 +14,12 @@ namespace tkom {
 			UnexpectedToken,
 			UndefinedReference,
 			MissingStatement,
-			IncorrectParametersList
+			IncorrectParametersList,
+			MissingMain
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);
+		Error(Type _type);
 
 		const char* what() const override;
 
