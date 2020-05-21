@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "Error.h"
+#include "Executor.h"
 
 using namespace tkom;
 
@@ -16,7 +17,7 @@ std::unique_ptr<ast::Program> Parser::parse()
 		this->symbolTable.addGlobalSymbol(Symbol(func.get()));
 		program->addFunction(std::move(func));
 	}
-
+	Executor::symbolTable = symbolTable;
 	return program;
 }
 
