@@ -30,6 +30,13 @@ namespace tkom {
 				callOperator = std::move(ptr);
 			}
 
+			void exec();
+			int returnInt();
+			std::string returnString();
+			//Add other types later
+			bool checkArguments();
+			void assignArguments();
+
 		private:
 			std::string identifier;
 			std::unique_ptr<CallOperator> callOperator;

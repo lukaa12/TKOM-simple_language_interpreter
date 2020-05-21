@@ -45,7 +45,7 @@ namespace tkom {
 			{
 				throw std::exception("TODO");
 			}
-			virtual void eval()
+			virtual void exec()
 			{
 				throw std::exception("TODO");
 			}

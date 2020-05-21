@@ -6,6 +6,7 @@
 namespace tkom {
 	namespace ast {
 
+
 		class Expression;
 
 		class BracketExpression : public Node
@@ -58,9 +59,13 @@ namespace tkom {
 			template<>
 			void setValue(std::string val);
 
+			void exec();
+			int eval();
+
 		private:
 			Type type;
 			std::variant<std::string, int, std::unique_ptr<FunctionCall>, std::unique_ptr<BracketExpression>> value;
+			int evaluated;
 		};
 
 		class MultiplicativeExpression : public Node

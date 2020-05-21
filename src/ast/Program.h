@@ -25,7 +25,7 @@ namespace tkom {
 				return "Program";
 			}
 
-			void eval();
+			void exec();
 
 		private:
 			std::vector<std::unique_ptr<FunctionDef>> functions;

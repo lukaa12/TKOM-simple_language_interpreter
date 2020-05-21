@@ -51,6 +51,8 @@ namespace tkom {
 				functionBody = std::move(ptr);
 			}
 
+			std::variant<int, std::string> returned;
+
 		private:
 			DataType returnType;
 			std::string identifier;

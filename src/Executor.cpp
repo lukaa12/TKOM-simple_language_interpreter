@@ -11,5 +11,5 @@ Executor::Executor(ast::Program* prog) : program(prog)
 
 void Executor::execute()
 {
-	this->program->eval();
+	this->program->exec();
 }

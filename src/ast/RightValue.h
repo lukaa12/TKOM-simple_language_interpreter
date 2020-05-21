@@ -60,6 +60,11 @@ namespace tkom {
 				value = val;
 			}
 
+			DataType getDataType();
+			void exec();
+			int intValue();
+			std::string stringValue();
+
 		private:
 			Type type;
 			std::variant<int, std::string, std::unique_ptr<FunctionCall>, std::unique_ptr<Expression>> value;

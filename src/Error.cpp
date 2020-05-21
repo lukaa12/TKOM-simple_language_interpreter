@@ -48,6 +48,18 @@ Error::Error(Type _type): type(_type)
 	case Type::MissingMain:
 		whatMessage = "Main function not found";
 		break;
+	case Type::UncompatibleType:
+		whatMessage = "Uncompatible type of variable";
+		break;
+	case Type::UndefinedReference:
+		whatMessage = "Undefined reference to symbol";
+		break;
+	case Type::CallOnNonFunction:
+		whatMessage = "Call on non function object";
+		break;
+	case Type::IncorrectParametersList:
+		whatMessage = "Incorrect Parameter list";
+		break;
 	default:
 		whatMessage = "Unknown error";
 		break;

@@ -15,7 +15,9 @@ namespace tkom {
 			UndefinedReference,
 			MissingStatement,
 			IncorrectParametersList,
-			MissingMain
+			MissingMain,
+			UncompatibleType,
+			CallOnNonFunction
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);
