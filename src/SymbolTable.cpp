@@ -2,17 +2,17 @@
 
 using namespace tkom;
 
-Symbol SymbolTable::getSymbol(std::string id)
+Symbol* SymbolTable::getSymbol(std::string id)
 {
-	Symbol symbol(ast::DataType::Int, "!");
+	Symbol* symbol = nullptr;
 
 	if (local.size() != 0)
 		symbol = local.top().getSymbol(id);
 
-	if (symbol.identifier == "!")
+	if (symbol == nullptr)
 		symbol = this->global.getSymbol(id);
 
-	if (symbol.identifier == "!")
+	if (symbol == nullptr)
 		throw std::exception("Undefined reference");
 	
 	return symbol;
@@ -46,12 +46,12 @@ void SymbolTable::leaveAllScopes()
 		local.pop();
 }
 
-Symbol Scope::getSymbol(std::string id)
+Symbol* Scope::getSymbol(std::string id)
 {
 	auto symbol = this->symbols.find(id);
 	if (symbol == symbols.end())
-		return Symbol(tkom::ast::DataType::Int, "!");
-	return symbol->second;
+		return nullptr;
+	return &symbol->second;
 }
 
 void Scope::addSymbol(const Symbol& symbol)

@@ -312,7 +312,7 @@ int main()
 	auto exec = dynamic_cast<ast::FunctionExec*>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getIdentifier(), "testFun");
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 0);
-	BOOST_CHECK_EQUAL(std::get<ast::FunctionDef*>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
+	BOOST_CHECK_EQUAL(std::get<ast::FunctionDef*>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier())->value),
 		program->getFunctions()[0].get());
 }
 

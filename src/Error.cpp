@@ -60,6 +60,12 @@ Error::Error(Type _type): type(_type)
 	case Type::IncorrectParametersList:
 		whatMessage = "Incorrect Parameter list";
 		break;
+	case Type::DivisionByZero:
+		whatMessage = "Division by zero";
+		break;
+	case Type::BreakOutsideLoop:
+		whatMessage = "Break outside loop";
+		break;
 	default:
 		whatMessage = "Unknown error";
 		break;

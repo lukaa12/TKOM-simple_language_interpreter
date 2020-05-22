@@ -61,9 +61,8 @@ namespace tkom {
 			}
 
 			DataType getDataType();
-			void exec();
-			int intValue();
-			std::string stringValue();
+			DataType eval();
+			std::variant<int, std::string> returned;
 
 		private:
 			Type type;

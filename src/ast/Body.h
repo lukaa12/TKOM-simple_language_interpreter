@@ -20,6 +20,12 @@ namespace tkom {
 				return instructions;
 			}
 
+			DataType exec();
+
+			std::variant<int, std::string> returned;
+			bool wasBreak;
+			bool wasReturn;
+
 		private:
 			std::vector<std::unique_ptr<Instruction>> instructions;
 		};

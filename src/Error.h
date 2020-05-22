@@ -17,7 +17,9 @@ namespace tkom {
 			IncorrectParametersList,
 			MissingMain,
 			UncompatibleType,
-			CallOnNonFunction
+			CallOnNonFunction,
+			DivisionByZero,
+			BreakOutsideLoop
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);

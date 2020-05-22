@@ -43,12 +43,12 @@ namespace tkom {
 
 			virtual std::string toString()
 			{
-				throw std::exception("TODO");
+				return "";
 			}
-			virtual void exec()
-			{
-				throw std::exception("TODO");
-			}
+			//virtual void exec()
+			//{
+			//	throw std::exception("TODO");
+			//}
 		
 			Node* parent;
 		};

@@ -47,6 +47,12 @@ namespace tkom {
 				return Type::If;
 			}
 
+			void exec();
+			bool wasReturned;
+			bool wasBreaked;
+			DataType dtype;
+			std::variant<int, std::string> returned;
+
 		private:
 			std::unique_ptr<Condition> condition;
 			std::unique_ptr<Body> ifBody;

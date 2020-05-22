@@ -25,7 +25,7 @@ namespace tkom {
 	class Scope
 	{
 	public:
-		Symbol getSymbol(std::string id);
+		Symbol* getSymbol(std::string id);
 		void addSymbol(const Symbol& symbol);
 	private:
 		std::unordered_map<std::string, Symbol> symbols;
@@ -34,7 +34,7 @@ namespace tkom {
 	class SymbolTable
 	{
 	public:
-		Symbol getSymbol(std::string id);
+		Symbol* getSymbol(std::string id);
 		void addGlobalSymbol(const Symbol& symbol);
 		void addLocalSymbol(const Symbol& symbol);
 		void enterScope();

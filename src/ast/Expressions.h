@@ -59,13 +59,11 @@ namespace tkom {
 			template<>
 			void setValue(std::string val);
 
-			void exec();
 			int eval();
 
 		private:
 			Type type;
 			std::variant<std::string, int, std::unique_ptr<FunctionCall>, std::unique_ptr<BracketExpression>> value;
-			int evaluated;
 		};
 
 		class MultiplicativeExpression : public Node
@@ -94,6 +92,8 @@ namespace tkom {
 				return divisionFlags;
 			}
 
+			int eval();
+
 		private:
 			std::vector<std::unique_ptr<PrimaryExpression>> components;
 			std::vector<bool> divisionFlags;
@@ -112,6 +112,8 @@ namespace tkom {
 				component.second->parent = this;
 				components.push_back(std::move(component));
 			}
+
+			int eval();
 
 		private:
 			std::vector<std::pair<bool, std::unique_ptr<MultiplicativeExpression>>> components;

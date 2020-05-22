@@ -27,6 +27,10 @@ namespace tkom {
 				return Type::Return;
 			}
 
+			void exec();
+			DataType dtype;
+			std::variant<int, std::string> returned;
+
 		private:
 			std::unique_ptr<RightValue> value;
 		};

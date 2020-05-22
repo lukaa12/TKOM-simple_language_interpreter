@@ -97,7 +97,7 @@ std::unique_ptr<ast::Instruction> Parser::readInstruction()
 	else if (this->token.getType() == Token::Type::While)
 		return std::unique_ptr<ast::Instruction>(this->readWhileLoop());
 	else if (token.getType() == Token::Type::Identifier)
-		if (symbolTable.getSymbol(token.getStrVal()).type == ast::IdType::Function)
+		if (symbolTable.getSymbol(token.getStrVal())->type == ast::IdType::Function)
 			return std::unique_ptr<ast::Instruction>(this->readFunctionExec());
 		else
 			return std::unique_ptr<ast::Instruction>(this->readAssignStatement());
@@ -233,9 +233,9 @@ std::unique_ptr<ast::RightValue> Parser::readRightValue()
 		right->setValue(this->token.getStrVal());
 		this->advance();
 	}
-	else if (this->checkType({ Token::Type::Identifier }) && symbolTable.getSymbol(this->token.getStrVal()).dataType != ast::DataType::Int)
+	else if (this->checkType({ Token::Type::Identifier }) && symbolTable.getSymbol(this->token.getStrVal())->dataType != ast::DataType::Int)
 	{
-		if (symbolTable.getSymbol(this->token.getStrVal()).type == ast::IdType::Variable)
+		if (symbolTable.getSymbol(this->token.getStrVal())->type == ast::IdType::Variable)
 		{
 			right->setType(ast::RightValue::Type::Identifier);
 			right->setValue(this->token.getStrVal());
@@ -299,7 +299,7 @@ std::unique_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 	this->requireType({ Token::Type::Identifier, Token::Type::IntLiteral, Token::Type::BracketOpen });
 	if (this->checkType({ Token::Type::Identifier }))
 	{
-		if (symbolTable.getSymbol(this->token.getStrVal()).type == ast::IdType::Function)
+		if (symbolTable.getSymbol(this->token.getStrVal())->type == ast::IdType::Function)
 		{
 			expr->setType(ast::PrimaryExpression::Type::Function);
 			expr->setValue(this->readFunctionCall());

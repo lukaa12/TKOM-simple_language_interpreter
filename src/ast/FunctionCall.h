@@ -30,10 +30,9 @@ namespace tkom {
 				callOperator = std::move(ptr);
 			}
 
-			void exec();
-			int returnInt();
-			std::string returnString();
-			//Add other types later
+			DataType exec();
+			std::variant <int, std::string> returned; 	//Add other types later
+
 			bool checkArguments();
 			void assignArguments();
 

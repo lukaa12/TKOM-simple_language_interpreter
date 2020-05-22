@@ -37,6 +37,17 @@ namespace tkom {
 			{
 				return Type::While;
 			}
+
+			std::string toString()
+			{
+				return "WhileLoop";
+			}
+
+			void exec();
+			bool wasReturned;
+			DataType dtype;
+			std::variant<int, std::string> returned;
+
 		private:
 			std::unique_ptr<Condition> condition;
 			std::unique_ptr<Body> whileBody;
