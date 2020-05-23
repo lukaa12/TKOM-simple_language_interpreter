@@ -2,6 +2,7 @@
 #define FUNCTION_CALL_H
 
 #include "AstNode.h"
+#include "../stdlib/DataTypes.h"
 
 namespace tkom {
 	namespace ast {
@@ -31,7 +32,7 @@ namespace tkom {
 			}
 
 			DataType exec();
-			std::variant <int, std::string> returned; 	//Add other types later
+			std::variant <int, std::string, lib::Color, lib::Graphic> returned; 
 
 			bool checkArguments();
 			void assignArguments();

@@ -2,6 +2,7 @@
 #define RIGHT_VALUE_H
 
 #include "AstNode.h"
+#include "../stdlib/DataTypes.h"
 #include <typeinfo>
 
 namespace tkom {
@@ -62,7 +63,7 @@ namespace tkom {
 
 			DataType getDataType();
 			DataType eval();
-			std::variant<int, std::string> returned;
+			std::variant<int, std::string, lib::Color, lib::Graphic> returned;
 
 		private:
 			Type type;

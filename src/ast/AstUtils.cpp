@@ -101,13 +101,13 @@ int Expression::eval()
 int MultiplicativeExpression::eval()
 {
 	int value = components[0]->eval();
-	for (int i = 0; i < divisionFlags.size(); ++i)
+	for (int i = 1; i < components.size(); ++i)
 	{
-		if (!divisionFlags[i])
-			value *= components[i + 1]->eval();
+		if (!divisionFlags[i - 1])
+			value *= components[i]->eval();
 		else
 		{
-			int factor = components[i + 1]->eval();
+			int factor = components[i]->eval();
 			if (factor == 0)
 				throw Error(Error::Type::DivisionByZero);
 			value /= factor;
@@ -270,6 +270,12 @@ void FunctionCall::assignArguments()
 		case DataType::String:
 			sym.value = std::get<std::string>(callOperator->getArguments()[i]->returned);
 			break;
+		case DataType::Color:
+			sym.value = std::get<lib::Color>(callOperator->getArguments()[i]->returned);
+			break;
+		case DataType::Graphic:
+			sym.value = std::get<lib::Graphic>(callOperator->getArguments()[i]->returned);
+			break;
 		}
 		arguments.push_back(sym);
 	}
@@ -407,6 +413,12 @@ void InitStatement::exec()
 		case DataType::String:
 			newSymbol.value = std::get<std::string>(it->second->returned);
 			break;
+		case DataType::Color:
+			newSymbol.value = std::get<lib::Color>(it->second->returned);
+			break;
+		case DataType::Graphic:
+			newSymbol.value = std::get<lib::Graphic>(it->second->returned);
+			break;
 		}
 		Executor::symbolTable.addLocalSymbol(newSymbol);
 	}
@@ -432,6 +444,12 @@ void AssignStatement::exec()
 		break;
 	case DataType::String:
 		lval->value = std::get<std::string>(rvalue->returned);
+		break;
+	case DataType::Color:
+		lval->value = std::get<lib::Color>(rvalue->returned);
+		break;
+	case DataType::Graphic:
+		lval->value = std::get<lib::Graphic>(rvalue->returned);
 		break;
 	}
 }

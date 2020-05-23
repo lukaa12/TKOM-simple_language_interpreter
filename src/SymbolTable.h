@@ -6,6 +6,7 @@
 #include <stack>
 #include <variant>
 #include "ast/AstNode.h"
+#include "stdlib/DataTypes.h"
 
 namespace tkom {
 
@@ -15,7 +16,7 @@ namespace tkom {
 		ast::IdType type;
 		ast::DataType dataType;
 		std::string identifier;
-		std::variant<int, std::string, ast::FunctionDef*> value;
+		std::variant<int, std::string, lib::Color, lib::Graphic, ast::FunctionDef*> value;
 
 		Symbol(ast::DataType _dtype, std::string _id);
 		Symbol(ast::FunctionDef* ptr);

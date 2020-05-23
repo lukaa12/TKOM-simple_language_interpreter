@@ -2,6 +2,7 @@
 #define RETURN_STATEMENT_H
 
 #include "AstNode.h"
+#include "../stdlib/DataTypes.h"
 
 namespace tkom {
 	namespace ast {
@@ -29,7 +30,7 @@ namespace tkom {
 
 			void exec();
 			DataType dtype;
-			std::variant<int, std::string> returned;
+			std::variant<int, std::string, lib::Color, lib::Graphic> returned;
 
 		private:
 			std::unique_ptr<RightValue> value;
