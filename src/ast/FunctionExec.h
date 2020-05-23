@@ -25,6 +25,8 @@ namespace tkom {
 				return Type::FuncExec;
 			}
 
+			void exec();
+
 		private:
 			std::unique_ptr<FunctionCall> function;
 		};

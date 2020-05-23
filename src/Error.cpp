@@ -66,6 +66,9 @@ Error::Error(Type _type): type(_type)
 	case Type::BreakOutsideLoop:
 		whatMessage = "Break outside loop";
 		break;
+	case Type::FunctionNotReturnedValue:
+		whatMessage = "Function must return a value";
+		break;
 	default:
 		whatMessage = "Unknown error";
 		break;

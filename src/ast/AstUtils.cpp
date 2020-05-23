@@ -1,6 +1,7 @@
 #include "AstNode.h"
 #include "../Executor.h"
 #include "../Error.h"
+#include <iostream>
 
 using namespace tkom;
 using namespace ast;
@@ -75,6 +76,8 @@ int Program::exec()
 			Executor::symbolTable.enterScope();
 			if (it->get()->getFunctionBody()->exec() != DataType::Int)
 				throw Error(Error::Type::UncompatibleType);
+			if (!(it->get()->getFunctionBody()->wasReturn))
+				throw Error(Error::Type::FunctionNotReturnedValue);
 			return std::get<int>(it->get()->getFunctionBody()->returned);
 		}
 	throw Error(Error::Type::MissingMain);
@@ -216,22 +219,27 @@ DataType FunctionCall::exec()
 {
 	Symbol* myFunction = nullptr;
 	try
-	{
-		myFunction = Executor::symbolTable.getSymbol(identifier);
-	}
+	{ myFunction = Executor::symbolTable.getSymbol(identifier); }
 	catch (const std::exception& e)
-	{
-		if (e.what() == "Undefined reference")
-			throw Error(Error::Type::UndefinedReference);
-	}
+	{ if (e.what() == "Undefined reference")
+			throw Error(Error::Type::UndefinedReference); }
+
 	if (myFunction->type != IdType::Function)
 		throw Error(Error::Type::CallOnNonFunction);
 	if(!checkArguments())
 		throw Error(Error::Type::IncorrectParametersList);
+	
+	Executor::symbolTable.enterScope();
 	assignArguments();
 	FunctionDef* def = std::get<FunctionDef*>(myFunction->value);
-	def->getFunctionBody()->exec();
+	
+	if (def->getReturnType() != def->getFunctionBody()->exec())
+		throw Error(Error::Type::UncompatibleType);
+	if (!(def->getFunctionBody()->wasReturn))
+		throw Error(Error::Type::FunctionNotReturnedValue);
+	
 	returned = def->getFunctionBody()->returned;
+	Executor::symbolTable.leaveScope();
 	return def->getReturnType();
 }
 
@@ -249,7 +257,6 @@ bool FunctionCall::checkArguments()
 
 void FunctionCall::assignArguments()
 {
-	Executor::symbolTable.enterScope();
 	CallDef* def = std::get<FunctionDef*>(Executor::symbolTable.getSymbol(identifier)->value)->getCallDef();
 	for (auto i = 0; i != def->getArgumenst().size(); ++i)
 	{
@@ -323,21 +330,78 @@ DataType Body::exec()
 //INSTRUCTIONS EXECS
 
 void Instruction::exec()
-{}
+{
+	//BRAKE STATEMENT NOTHING TO DO
+}
 
 void ReturnStatement::exec()
 {
-
+	this->dtype = this->value->eval();
+	this->returned = this->value->returned;
 }
 
 void WhileLoop::exec()
 {
-
+	throw std::exception("TODO");
 }
 
 void IfStatement::exec()
 {
+	throw std::exception("TODO");
+}
 
+void FunctionExec::exec()
+{
+
+}
+
+void InitStatement::exec()
+{
+	for (auto it = initiated.begin(); it != initiated.end(); ++it)
+	{
+		Symbol newSymbol{ dataType, it->first };
+		if (it->second == nullptr)
+		{
+			Executor::symbolTable.addLocalSymbol(newSymbol);
+			continue;
+		}
+		if (it->second->eval() != dataType)
+			throw Error(Error::Type::UncompatibleType);
+		switch (dataType)
+		{
+		case DataType::Int:
+			newSymbol.value = std::get<int>(it->second->returned);
+			break;
+		case DataType::String:
+			newSymbol.value = std::get<std::string>(it->second->returned);
+			break;
+		}
+		Executor::symbolTable.addLocalSymbol(newSymbol);
+	}
+}
+
+void AssignStatement::exec()
+{
+	Symbol* lval = nullptr;
+	try
+	{ lval = Executor::symbolTable.getSymbol(identifier); }
+	catch (const std::exception& e)
+	{ 
+		std::cout << e.what() << std::endl;
+		if (e.what() == "Undefined reference")
+			throw Error(Error::Type::UndefinedReference); 
+	}
+	if (rvalue->eval() != lval->dataType)
+		throw Error(Error::Type::UncompatibleType);
+	switch (lval->dataType)
+	{
+	case DataType::Int:
+		lval->value = std::get<int>(rvalue->returned);
+		break;
+	case DataType::String:
+		lval->value = std::get<std::string>(rvalue->returned);
+		break;
+	}
 }
 
 //RIGHT VALUES EVALUATION

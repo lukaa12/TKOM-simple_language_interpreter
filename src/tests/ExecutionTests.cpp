@@ -561,4 +561,187 @@ BOOST_FIXTURE_TEST_CASE(BracesConditionTest, RelationCondFix)
 	BOOST_CHECK_EQUAL(pcond.eval(), 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(ReturnStatement_test, RightValFix)
+{
+	auto rStat = std::make_unique<ReturnStatement>();
+	rStat->setValue(getIntRval(17));
+	
+	BOOST_CHECK_NO_THROW(rStat->exec());
+	BOOST_CHECK_EQUAL(rStat->dtype, DataType::Int);
+	BOOST_CHECK_EQUAL(std::get<int>(rStat->returned), 17);
+}
+
+BOOST_FIXTURE_TEST_CASE(ReturnStatement_string_test, RightValFix)
+{
+	auto rStat = std::make_unique<ReturnStatement>();
+	rStat->setValue(getStringRval());
+
+	BOOST_CHECK_NO_THROW(rStat->exec());
+	BOOST_CHECK_EQUAL(rStat->dtype, DataType::String);
+	BOOST_CHECK_EQUAL(std::get<std::string>(rStat->returned), "test string");
+}
+
+BOOST_FIXTURE_TEST_CASE(Body_return_test, RightValFix)
+{
+	auto rStat = std::make_unique<ReturnStatement>();
+	rStat->setValue(getStringRval());
+	auto body = std::make_unique<Body>();
+	body->addInstruction(std::move(rStat));
+
+	BOOST_CHECK_EQUAL(body->exec(), DataType::String);
+	BOOST_CHECK_EQUAL(body->wasBreak, false);
+	BOOST_CHECK_EQUAL(body->wasReturn, true);
+	BOOST_CHECK_EQUAL(std::get<std::string>(body->returned), "test string");
+}
+
+BOOST_FIXTURE_TEST_CASE(Body_return_test2, RightValFix)
+{
+	auto rStat = std::make_unique<ReturnStatement>();
+	rStat->setValue(getIntRval(0));
+	auto body = std::make_unique<Body>();
+	body->addInstruction(std::move(rStat));
+
+	BOOST_CHECK_EQUAL(body->exec(), DataType::Int);
+	BOOST_CHECK_EQUAL(body->wasBreak, false);
+	BOOST_CHECK_EQUAL(body->wasReturn, true);
+	BOOST_CHECK_EQUAL(std::get<int>(body->returned), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Body_unexpected_break_test)
+{
+	auto body = std::make_unique<Body>();
+	body->addInstruction(std::make_unique<Instruction>());
+
+	BOOST_CHECK_THROW(body->exec(), Error);
+}
+
+BOOST_FIXTURE_TEST_CASE(Main_with_return_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	return 0;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(Main_with_return_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	return -9;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), -9);
+}
+
+BOOST_FIXTURE_TEST_CASE(Main_with_incompatible_type_return_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	return "I'm int :P";
+}
+)");
+
+	BOOST_CHECK_EXCEPTION(prog->exec(), Error, [](const Error& e)->bool {
+		return std::string{ "Uncompatible type of variable" }.compare(e.what()) == 0 ? true : false;
+	});
+}
+
+BOOST_FIXTURE_TEST_CASE(Main_without_return_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	//return "I'm int :P";
+}
+)");
+
+	BOOST_CHECK_EXCEPTION(prog->exec(), Error, [](const Error& e)->bool {
+		return std::string{ "Function must return a value" }.compare(e.what()) == 0 ? true : false;
+	});
+}
+
+BOOST_FIXTURE_TEST_CASE(InitStatement_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int number = 10;
+	return number;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 10);
+}
+
+BOOST_FIXTURE_TEST_CASE(InitStatement_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int x = -7;
+	int number = x + 10;
+	return number;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(Multiple_InitStatement_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int number = 10, x, z = 0;
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(AssignStatement_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int number = 10, x;
+	x = 0;
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 0);
+}
+
+//BOOST_AUTO_TEST_CASE(Body_break_test)
+//{
+//	auto body = std::make_unique<Body>();
+//	body->addInstruction(std::make_unique<Instruction>());
+//
+//	BOOST_CHECK_NO_THROW(body->exec());
+//	BOOST_CHECK_EQUAL(body->wasBreak, true);
+//	BOOST_CHECK_EQUAL(body->wasReturn, false);
+//}
+
+//BOOST_FIXTURE_TEST_CASE(Body_break_test2, RightValFix)
+//{
+//	auto rStat = std::make_unique<ReturnStatement>();
+//	rStat->setValue(getIntRval(0));
+//	auto body = std::make_unique<Body>();
+//	body->addInstruction(std::make_unique<Instruction>());
+//	body->addInstruction(std::move(rStat));
+//
+//	BOOST_CHECK_NO_THROW(body->exec());
+//	BOOST_CHECK_EQUAL(body->wasBreak, true);
+//	BOOST_CHECK_EQUAL(body->wasReturn, false);
+//}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -19,7 +19,8 @@ namespace tkom {
 			UncompatibleType,
 			CallOnNonFunction,
 			DivisionByZero,
-			BreakOutsideLoop
+			BreakOutsideLoop,
+			FunctionNotReturnedValue
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);
