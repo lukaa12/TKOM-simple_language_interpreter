@@ -21,6 +21,7 @@ namespace tkom {
 		Symbol(ast::DataType _dtype, std::string _id);
 		Symbol(ast::FunctionDef* ptr);
 		Symbol();
+		Symbol(std::string _id);
 	};
 
 	class Scope
@@ -35,6 +36,7 @@ namespace tkom {
 	class SymbolTable
 	{
 	public:
+		SymbolTable();
 		Symbol* getSymbol(std::string id);
 		void addGlobalSymbol(const Symbol& symbol);
 		void addLocalSymbol(const Symbol& symbol);

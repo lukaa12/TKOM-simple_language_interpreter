@@ -1,6 +1,13 @@
 #include "SymbolTable.h"
+#include "stdlib/Functions.h"
 
 using namespace tkom;
+
+SymbolTable::SymbolTable()
+{
+	for (auto i : lib::functions)
+		this->addGlobalSymbol(Symbol(i));
+}
 
 Symbol* SymbolTable::getSymbol(std::string id)
 {
@@ -68,4 +75,7 @@ identifier(ptr->getIdentifier()), value(ptr)
 {}
 
 Symbol::Symbol(): type(ast::IdType::Variable), dataType(ast::DataType::Int)
+{}
+
+Symbol::Symbol(std::string _id): type(ast::IdType::Function), dataType(ast::DataType::Int), identifier(_id)
 {}

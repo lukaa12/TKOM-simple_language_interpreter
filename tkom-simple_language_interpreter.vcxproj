@@ -231,6 +231,8 @@
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\Scanner.cpp" />
+    <ClCompile Include="src\stdlib\Functions.cpp" />
+    <ClCompile Include="src\stdlib\tests\LibTests.cpp" />
     <ClCompile Include="src\SymbolTable.cpp" />
     <ClCompile Include="src\tests\ErrorTests.cpp" />
     <ClCompile Include="src\tests\ExecutionTests.cpp" />
@@ -272,6 +274,7 @@
     <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Scanner.h" />
     <ClInclude Include="src\stdlib\DataTypes.h" />
+    <ClInclude Include="src\stdlib\Functions.h" />
     <ClInclude Include="src\SymbolTable.h" />
     <ClInclude Include="src\Token.h" />
   </ItemGroup>

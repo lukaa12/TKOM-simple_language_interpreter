@@ -217,6 +217,8 @@ int PrimaryCondition::eval()
 
 DataType FunctionCall::exec()
 {
+	if (Executor::checkFunction(identifier))
+		return Executor::libAdapter(this);
 	Symbol* myFunction = nullptr;
 	try
 	{ myFunction = Executor::symbolTable.getSymbol(identifier); }
