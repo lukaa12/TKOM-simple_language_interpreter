@@ -48,6 +48,7 @@ std::unique_ptr<ast::CallDef> Parser::readCallDef()
 		this->requireType({ Token::Type::Identifier });
 		std::string argName = this->token.getStrVal();
 		callDef->addArgument(std::make_pair(type, argName));
+		this->symbolTable.addLocalSymbol(Symbol(type, argName));
 		this->advance();
 		this->requireType({ Token::Type::BracketClose, Token::Type::Comma });
 		if (this->checkType({ Token::Type::Comma }))

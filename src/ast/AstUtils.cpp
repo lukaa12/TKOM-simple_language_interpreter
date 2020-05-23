@@ -246,10 +246,10 @@ DataType FunctionCall::exec()
 bool FunctionCall::checkArguments()
 {
 	CallDef* def = std::get<FunctionDef*>(Executor::symbolTable.getSymbol(identifier)->value)->getCallDef();
-	if (def->getArgumenst().size() != callOperator->getArguments().size())
+	if (def->getArguments().size() != callOperator->getArguments().size())
 		return false;
-	for(auto i = 0; i != def->getArgumenst().size(); ++i)
-		if(def->getArgumenst()[i].first != callOperator->getArguments()[i]->getDataType())
+	for(auto i = 0; i != def->getArguments().size(); ++i)
+		if(def->getArguments()[i].first != callOperator->getArguments()[i]->getDataType())
 			return false;
 			
 	return true;
@@ -258,11 +258,11 @@ bool FunctionCall::checkArguments()
 void FunctionCall::assignArguments()
 {
 	CallDef* def = std::get<FunctionDef*>(Executor::symbolTable.getSymbol(identifier)->value)->getCallDef();
-	for (auto i = 0; i != def->getArgumenst().size(); ++i)
+	for (auto i = 0; i != def->getArguments().size(); ++i)
 	{
-		Symbol sym = Symbol(def->getArgumenst()[i].first, def->getArgumenst()[i].second);
+		Symbol sym = Symbol(def->getArguments()[i].first, def->getArguments()[i].second);
 		callOperator->getArguments()[i]->eval();
-		switch (def->getArgumenst()[i].first)
+		switch (def->getArguments()[i].first)
 		{
 		case DataType::Int:
 			sym.value = std::get<int>(callOperator->getArguments()[i]->returned);
@@ -352,7 +352,7 @@ void IfStatement::exec()
 
 void FunctionExec::exec()
 {
-
+	function->exec();
 }
 
 void InitStatement::exec()

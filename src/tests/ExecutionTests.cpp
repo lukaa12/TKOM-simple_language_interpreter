@@ -721,6 +721,126 @@ int main()
 	BOOST_CHECK_EQUAL(prog->exec(), 0);
 }
 
+BOOST_FIXTURE_TEST_CASE(FunctionCall_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun()
+{
+	return 77;
+}
+
+int main() 
+{
+	int number;
+	number = fun();
+	return number;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 77);
+}
+
+BOOST_FIXTURE_TEST_CASE(FunctionCall_in_expression_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun()
+{
+	return 77;
+}
+
+int main() 
+{
+	int number;
+	number = fun() / 7 + 10;
+	return number;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 21);
+}
+
+BOOST_FIXTURE_TEST_CASE(FunctionExec_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun()
+{
+	return 12;
+}
+
+int main() 
+{
+	fun();
+	return 0;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(FunctionExec_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun()
+{
+	int x = 10, y;
+	y = x + 3;
+	return y - 1;
+}
+
+int main() 
+{
+	int x = fun();
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 12);
+}
+
+BOOST_FIXTURE_TEST_CASE(Arguments_passing_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun(int x, int y)
+{
+	int z = 3;
+	return z;
+}
+
+int main() 
+{
+	int z = 0;	
+	z = fun(1, 10);
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 3);
+}
+
+//BOOST_FIXTURE_TEST_CASE(Arguments_passing_test2, ExecutionFix)
+//{
+//
+//}
+
+//BOOST_FIXTURE_TEST_CASE(Arguments_passing_test3, ExecutionFix)
+//{
+//	auto prog = getProgram(R"(
+//int fun(int x)
+//{
+//	return x * x;
+//}
+//
+//int main() 
+//{
+//	int z = 2;	
+//	z = fun(z);
+//	return z;
+//}
+//)");
+//
+//	BOOST_CHECK_EQUAL(prog->exec(), 4);
+//}
+
 //BOOST_AUTO_TEST_CASE(Body_break_test)
 //{
 //	auto body = std::make_unique<Body>();
