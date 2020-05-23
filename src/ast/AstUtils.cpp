@@ -229,7 +229,6 @@ DataType FunctionCall::exec()
 	if(!checkArguments())
 		throw Error(Error::Type::IncorrectParametersList);
 	
-	Executor::symbolTable.enterScope();
 	assignArguments();
 	FunctionDef* def = std::get<FunctionDef*>(myFunction->value);
 	
@@ -258,6 +257,7 @@ bool FunctionCall::checkArguments()
 void FunctionCall::assignArguments()
 {
 	CallDef* def = std::get<FunctionDef*>(Executor::symbolTable.getSymbol(identifier)->value)->getCallDef();
+	std::vector<Symbol> arguments;
 	for (auto i = 0; i != def->getArguments().size(); ++i)
 	{
 		Symbol sym = Symbol(def->getArguments()[i].first, def->getArguments()[i].second);
@@ -271,8 +271,11 @@ void FunctionCall::assignArguments()
 			sym.value = std::get<std::string>(callOperator->getArguments()[i]->returned);
 			break;
 		}
-		Executor::symbolTable.addLocalSymbol(sym);
+		arguments.push_back(sym);
 	}
+	Executor::symbolTable.enterScope();
+	for (auto i : arguments)
+		Executor::symbolTable.addLocalSymbol(i);
 }
 
 DataType Body::exec()
@@ -320,8 +323,9 @@ DataType Body::exec()
 				this->returned = ifStat->returned;
 				return ifStat->dtype;
 			}
-			wasBreak = wasBreak ? true : ifStat->wasBreaked;
-			return DataType::Int;
+			wasBreak = wasBreak || ifStat->wasBreaked;
+			if(wasBreak)
+				return DataType::Int;
 		}
 	}
 	return DataType::Int;
@@ -342,12 +346,40 @@ void ReturnStatement::exec()
 
 void WhileLoop::exec()
 {
-	throw std::exception("TODO");
+	wasReturned = false;
+	while (condition->eval() != 0)
+	{
+		dtype = whileBody->exec();
+		if (whileBody->wasBreak)
+			break;
+		else if (whileBody->wasReturn)
+		{
+			wasReturned = true;
+			returned = whileBody->returned;
+			return;
+		}
+	}
 }
 
 void IfStatement::exec()
 {
-	throw std::exception("TODO");
+	wasBreaked = wasReturned = false;
+	if (condition->eval() != 0)
+	{
+		dtype = ifBody->exec();
+		wasBreaked = ifBody->wasBreak;
+		wasReturned = ifBody->wasReturn;
+		if (wasReturned)
+			returned = ifBody->returned;
+	} 
+	else if (elseBody != nullptr)
+	{
+		dtype = elseBody->exec();
+		wasBreaked = elseBody->wasBreak;
+		wasReturned = elseBody->wasReturn;
+		if (wasReturned)
+			returned = elseBody->returned;
+	}
 }
 
 void FunctionExec::exec()

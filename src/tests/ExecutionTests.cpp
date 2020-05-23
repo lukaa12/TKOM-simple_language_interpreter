@@ -817,51 +817,229 @@ int main()
 	BOOST_CHECK_EQUAL(prog->exec(), 3);
 }
 
-//BOOST_FIXTURE_TEST_CASE(Arguments_passing_test2, ExecutionFix)
-//{
-//
-//}
+BOOST_FIXTURE_TEST_CASE(Arguments_passing_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun(int x, string s, int z)
+{
+	x = x+1;
+	return x * z;
+}
 
-//BOOST_FIXTURE_TEST_CASE(Arguments_passing_test3, ExecutionFix)
-//{
-//	auto prog = getProgram(R"(
-//int fun(int x)
-//{
-//	return x * x;
-//}
-//
-//int main() 
-//{
-//	int z = 2;	
-//	z = fun(z);
-//	return z;
-//}
-//)");
-//
-//	BOOST_CHECK_EQUAL(prog->exec(), 4);
-//}
+int main() 
+{
+	int z = 2;	
+	z = fun(1,"Argument2",z);
+	return z;
+}
+)");
 
-//BOOST_AUTO_TEST_CASE(Body_break_test)
-//{
-//	auto body = std::make_unique<Body>();
-//	body->addInstruction(std::make_unique<Instruction>());
-//
-//	BOOST_CHECK_NO_THROW(body->exec());
-//	BOOST_CHECK_EQUAL(body->wasBreak, true);
-//	BOOST_CHECK_EQUAL(body->wasReturn, false);
-//}
+	BOOST_CHECK_EQUAL(prog->exec(), 4);
+}
 
-//BOOST_FIXTURE_TEST_CASE(Body_break_test2, RightValFix)
-//{
-//	auto rStat = std::make_unique<ReturnStatement>();
-//	rStat->setValue(getIntRval(0));
-//	auto body = std::make_unique<Body>();
-//	body->addInstruction(std::make_unique<Instruction>());
-//	body->addInstruction(std::move(rStat));
-//
-//	BOOST_CHECK_NO_THROW(body->exec());
-//	BOOST_CHECK_EQUAL(body->wasBreak, true);
-//	BOOST_CHECK_EQUAL(body->wasReturn, false);
-//}
+BOOST_FIXTURE_TEST_CASE(Arguments_passing_test3, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int fun(int x)
+{
+	return x * x;
+}
+
+int main() 
+{
+	int z = 2;	
+	z = fun(z);
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 4);
+}
+
+BOOST_FIXTURE_TEST_CASE(While_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2;	
+	while( z > 0 )
+		z = z - 1;
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(While_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2, x = 10;	
+	while( x != 0 )
+	{	
+		z = z + 1;
+		x = x - 1;
+	}
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 12);
+}
+
+BOOST_FIXTURE_TEST_CASE(While_test3, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2, x = 3;	
+	while( x != 0 )
+	{	
+		z = z*z;
+		x = x - 1;
+	}
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 16*16);
+}
+
+BOOST_FIXTURE_TEST_CASE(While_test4, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2, x = 10;	
+	while( x != 0 )
+	{	
+		z = z + 1;
+		x = x - 1;
+		return -10;
+	}
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), -10);
+}
+
+BOOST_FIXTURE_TEST_CASE(While_test5, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2, x = 10;	
+	while( x != 0 )
+	{	
+		z = z + 1;
+		x = x - 1;
+		break;
+	}
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(If_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2, x = 10;	
+	
+	if( z == 2 )
+		x = 100;
+
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(If_test2, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 0, x = 10;	
+	
+	if( z == 2 )
+		x = 100;
+
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 10);
+}
+
+BOOST_FIXTURE_TEST_CASE(If_test3, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 1, x = 10;	
+	
+	if( z == 2 )
+		x = 100;
+	else
+	{
+		x = 50;
+		return z + x;
+	}
+
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 51);
+}
+
+BOOST_FIXTURE_TEST_CASE(If_test4, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 1, x = 10;	
+	
+	if( z == 1 )
+		x = 100;
+	else
+	{
+		x = 50;
+		return z + x;
+	}
+
+	return x;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(Break_test, ExecutionFix)
+{
+	auto prog = getProgram(R"(
+int main() 
+{
+	int z = 2;	
+	while( !0 )
+	{
+		if(z == -1)
+			break;
+		z = z - 1;
+	}
+	return z;
+}
+)");
+
+	BOOST_CHECK_EQUAL(prog->exec(), -1);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
