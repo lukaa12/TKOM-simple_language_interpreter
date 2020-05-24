@@ -75,12 +75,12 @@ int Program::exec()
 		{
 			Executor::symbolTable.enterScope();
 			if (it->get()->getFunctionBody()->exec() != DataType::Int)
-				throw Error(Error::Type::UncompatibleType);
+				throw Error(pos, Error::Type::UncompatibleType);
 			if (!(it->get()->getFunctionBody()->wasReturn))
-				throw Error(Error::Type::FunctionNotReturnedValue);
+				throw Error(pos, Error::Type::FunctionNotReturnedValue);
 			return std::get<int>(it->get()->getFunctionBody()->returned);
 		}
-	throw Error(Error::Type::MissingMain);
+	throw Error(pos, Error::Type::MissingMain);
 }
 
 //EXPRESSIONS
@@ -109,7 +109,7 @@ int MultiplicativeExpression::eval()
 		{
 			int factor = components[i]->eval();
 			if (factor == 0)
-				throw Error(Error::Type::DivisionByZero);
+				throw Error(pos, Error::Type::DivisionByZero);
 			value /= factor;
 		}
 	}
@@ -127,12 +127,12 @@ int PrimaryExpression::eval()
 	case PrimaryExpression::Type::Identifier:
 		symbol = Executor::symbolTable.getSymbol(std::get<std::string>(value));
 		if (symbol->dataType != DataType::Int)
-			throw Error(Error::Type::UncompatibleType);
+			throw Error(pos, Error::Type::UncompatibleType);
 		return std::get<int>(symbol->value);
 	case PrimaryExpression::Type::Function:
 		func = this->getValue<FunctionCall>();
 		if (func->exec() != DataType::Int)
-			throw Error(Error::Type::UncompatibleType);
+			throw Error(pos, Error::Type::UncompatibleType);
 		return std::get<int>(func->returned);
 	case PrimaryExpression::Type::Bracket:
 		return this->getValue<BracketExpression>()->getExpression()->eval();
@@ -205,7 +205,7 @@ int PrimaryCondition::eval()
 			eval = std::get<int>(getCondition<RightValue>()->returned);
 			break;
 		default:
-			throw Error(Error::Type::UncompatibleType);
+			throw Error(pos, Error::Type::UncompatibleType);
 			break;
 		}
 		if (negated)
@@ -227,20 +227,20 @@ DataType FunctionCall::exec()
 	{ myFunction = Executor::symbolTable.getSymbol(identifier); }
 	catch (const std::exception& e)
 	{ if (e.what() == "Undefined reference")
-			throw Error(Error::Type::UndefinedReference); }
+			throw Error(pos, Error::Type::UndefinedReference); }
 
 	if (myFunction->type != IdType::Function)
-		throw Error(Error::Type::CallOnNonFunction);
+		throw Error(pos, Error::Type::CallOnNonFunction);
 	if(!checkArguments())
-		throw Error(Error::Type::IncorrectParametersList);
+		throw Error(pos, Error::Type::IncorrectParametersList);
 	
 	assignArguments();
 	FunctionDef* def = std::get<FunctionDef*>(myFunction->value);
 	
 	if (def->getReturnType() != def->getFunctionBody()->exec())
-		throw Error(Error::Type::UncompatibleType);
+		throw Error(pos, Error::Type::UncompatibleType);
 	if (!(def->getFunctionBody()->wasReturn))
-		throw Error(Error::Type::FunctionNotReturnedValue);
+		throw Error(pos, Error::Type::FunctionNotReturnedValue);
 	
 	returned = def->getFunctionBody()->returned;
 	Executor::symbolTable.leaveScope();
@@ -302,7 +302,7 @@ DataType Body::exec()
 			while (parent->toString() != "WhileLoop")
 			{
 				if (parent->parent == nullptr)
-					throw Error(Error::Type::BreakOutsideLoop);
+					throw Error(pos, Error::Type::BreakOutsideLoop);
 				parent = parent->parent;
 			}
 			wasBreak = true;
@@ -424,7 +424,7 @@ void InitStatement::exec()
 			continue;
 		}
 		if (it->second->eval() != dataType)
-			throw Error(Error::Type::UncompatibleType);
+			throw Error(pos, Error::Type::UncompatibleType);
 		switch (dataType)
 		{
 		case DataType::Int:
@@ -453,10 +453,10 @@ void AssignStatement::exec()
 	{ 
 		std::cout << e.what() << std::endl;
 		if (e.what() == "Undefined reference")
-			throw Error(Error::Type::UndefinedReference); 
+			throw Error(pos, Error::Type::UndefinedReference);
 	}
 	if (rvalue->eval() != lval->dataType)
-		throw Error(Error::Type::UncompatibleType);
+		throw Error(pos, Error::Type::UncompatibleType);
 	switch (lval->dataType)
 	{
 	case DataType::Int:
@@ -493,7 +493,7 @@ DataType RightValue::getDataType()
 		{ sym = Executor::symbolTable.getSymbol(std::get<std::string>(value)); }
 		catch (const std::exception & e)
 		{ if (e.what() == "Undefined reference")
-				throw Error(Error::Type::UndefinedReference); }
+				throw Error(pos, Error::Type::UndefinedReference); }
 		return sym->dataType;
 	}
 	case Type::Function:
@@ -506,7 +506,7 @@ DataType RightValue::getDataType()
 		catch (const std::exception & e)
 		{
 			if (e.what() == "Undefined reference")
-				throw Error(Error::Type::UndefinedReference);
+				throw Error(pos, Error::Type::UndefinedReference);
 		}
 		return sym->dataType;
 	}
@@ -533,7 +533,7 @@ DataType RightValue::eval()
 		{ sym = Executor::symbolTable.getSymbol(std::get<std::string>(value)); }
 		catch (const std::exception & e)
 		{ if (e.what() == "Undefined reference")
-				throw Error(Error::Type::UndefinedReference); }
+				throw Error(pos, Error::Type::UndefinedReference); }
 		switch (sym->dataType)
 		{
 		case DataType::Int:

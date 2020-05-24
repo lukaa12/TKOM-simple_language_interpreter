@@ -24,7 +24,6 @@ namespace tkom {
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);
-		Error(Type _type);
 		Error();
 
 		const char* what() const override;
