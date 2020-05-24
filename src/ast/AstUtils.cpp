@@ -402,6 +402,21 @@ void InitStatement::exec()
 		Symbol newSymbol{ dataType, it->first };
 		if (it->second == nullptr)
 		{
+			switch (dataType)
+			{
+			case DataType::Color:
+				newSymbol.value = lib::Color();
+				break;
+			case DataType::Graphic:
+				newSymbol.value = lib::Graphic();
+				break;
+			case DataType::Int:
+				newSymbol.value = 0;
+				break;
+			case DataType::String:
+				newSymbol.value = std::string();
+				break;
+			}
 			Executor::symbolTable.addLocalSymbol(newSymbol);
 			continue;
 		}
@@ -509,6 +524,12 @@ DataType RightValue::eval()
 			break;
 		case DataType::String:
 			returned = std::get<std::string>(sym->value);
+			break;
+		case DataType::Color:
+			returned = std::get<lib::Color>(sym->value);
+			break;
+		case DataType::Graphic:
+			returned = std::get<lib::Graphic>(sym->value);
 			break;
 		}
 		return sym->dataType;

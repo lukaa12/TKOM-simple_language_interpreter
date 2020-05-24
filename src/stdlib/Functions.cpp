@@ -126,7 +126,7 @@ Graphic tkom::lib::translate(Graphic object, int x, int y)
 
 Graphic tkom::lib::scale(Graphic object, int x, int y)
 {
-	object.transform = glm::scale(object.transform, glm::vec2(static_cast<float>(x), static_cast<float>(y)));
+	object.transform = glm::scale(object.transform, glm::vec2(x/100.0f, y/100.0f));
 	return object;
 }
 
@@ -157,7 +157,6 @@ Graphic tkom::lib::setColor(Graphic obj, Color c)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	std::cout << key << std::endl;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }

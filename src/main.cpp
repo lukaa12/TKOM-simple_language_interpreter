@@ -10,32 +10,36 @@ using namespace tkom;
 
 int main()
 {
-	std::stringstream in{ "//Sample script\nint main()\n{\nint i = 7;\nreturn i;\n}\n" };
+	std::stringstream in{ R"(
+int main() 
+{
+	print("Hello World!");
+	graphic root = blank(800, 500);
+	graphic triangle = triangle(200, 200);
+	root = add(root, triangle);
+
+	show(root);
+	
+	return 0;
+}
+)" };
 	Reader reader{ in };
 	Scanner scanner{ reader };
 	Parser parser{ scanner };
 
 	std::unique_ptr<ast::Program> program;
+	int returned;
 
 	try
 	{
 		program = parser.parse();
+		returned = program->exec();
+		std::cout << "Program returned: " << returned << std::endl;
 	}
 	catch (const Error& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
-
-	lib::Graphic blank = lib::blank(800, 600);
-	lib::Graphic triangle = lib::triangle(100, 100);
-	triangle = lib::translate(triangle, 100, 0);
-	triangle = lib::setColor(triangle, lib::colorRGB(255, 0, 0));
-	triangle = lib::add(triangle, triangle);
-	triangle = lib::translate(triangle, 0, 100);
-	blank = lib::add(blank, triangle);
-	blank = lib::add(blank, lib::circle(30));
-
-	lib::show(blank);
 
 	return 0;
 }

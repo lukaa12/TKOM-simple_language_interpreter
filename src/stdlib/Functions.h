@@ -46,12 +46,17 @@ namespace tkom {
 			std::make_pair("show", ast::DataType::Int),
 			std::make_pair("blank", ast::DataType::Graphic),
 			std::make_pair("triangle", ast::DataType::Graphic),
-			std::make_pair("rectangularTriangle", ast::DataType::Graphic),
+			std::make_pair("rectangular_triangle", ast::DataType::Graphic),
+			std::make_pair("rectangle", ast::DataType::Graphic),
+			std::make_pair("circle", ast::DataType::Graphic),
+			std::make_pair("line", ast::DataType::Graphic),
 			std::make_pair("add", ast::DataType::Graphic),
 			std::make_pair("translate", ast::DataType::Graphic),
-			std::make_pair("unFill", ast::DataType::Graphic),
-			std::make_pair("colorRGB", ast::DataType::Color),
-			std::make_pair("setColor", ast::DataType::Graphic)
+			std::make_pair("scale", ast::DataType::Graphic),
+			std::make_pair("rotate", ast::DataType::Graphic),
+			std::make_pair("unfill", ast::DataType::Graphic),
+			std::make_pair("color_rgb", ast::DataType::Color),
+			std::make_pair("set_color", ast::DataType::Graphic)
 		};
 
 	}

@@ -20,7 +20,7 @@ Symbol* SymbolTable::getSymbol(std::string id)
 		symbol = this->global.getSymbol(id);
 
 	if (symbol == nullptr)
-		throw std::exception("Undefined reference to");
+		throw std::exception("Undefined reference");
 	
 	return symbol;
 }
