@@ -32,7 +32,7 @@ namespace tkom {
 			}
 
 			DataType exec();
-			std::variant <int, std::string, lib::Color, lib::Graphic> returned; 
+			std::variant <int, std::string, lib::Color, lib::Graphic> returned;
 
 			bool checkArguments();
 			void assignArguments();

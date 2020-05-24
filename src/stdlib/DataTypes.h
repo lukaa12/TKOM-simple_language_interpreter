@@ -12,6 +12,22 @@ namespace tkom {
 			short b;
 		};
 
+		class Operation
+		{
+		public:
+			enum class Type {
+				Pane,
+				Triangle,
+				Circle,
+				Rectangle,
+				Line,
+				Scale,
+				Rotate,
+				Move,
+				AddObject,
+			};
+		};
+
 		class Graphic
 		{
 		public:
@@ -24,7 +40,10 @@ namespace tkom {
 				int percentScaleX;
 				int percentScaleY;
 			} position;
+			//std::vector
 		};
+
+		
 
 	}
 }
