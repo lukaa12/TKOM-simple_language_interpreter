@@ -6,7 +6,7 @@ using namespace tkom;
 SymbolTable::SymbolTable()
 {
 	for (auto i : lib::functions)
-		this->addGlobalSymbol(Symbol(i));
+		this->addGlobalSymbol(Symbol(i.first, i.second));
 }
 
 Symbol* SymbolTable::getSymbol(std::string id)
@@ -77,5 +77,5 @@ identifier(ptr->getIdentifier()), value(ptr)
 Symbol::Symbol(): type(ast::IdType::Variable), dataType(ast::DataType::Int)
 {}
 
-Symbol::Symbol(std::string _id): type(ast::IdType::Function), dataType(ast::DataType::Int), identifier(_id)
+Symbol::Symbol(std::string _id, ast::DataType t): type(ast::IdType::Function), dataType(t), identifier(_id)
 {}

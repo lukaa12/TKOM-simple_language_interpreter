@@ -75,6 +75,11 @@ Error::Error(Type _type): type(_type)
 	}
 }
 
+Error::Error(): type(Error::Type::UndefinedReference)
+{
+	whatMessage = "Unknown error";
+}
+
 const char* Error::what() const
 {
 	return whatMessage.c_str();

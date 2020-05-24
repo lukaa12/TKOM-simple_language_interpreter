@@ -1,92 +1,42 @@
-//#include <iostream>
-//#include <sstream>
-//#include "Reader.h"
-//#include "Scanner.h"
-//#include "Parser.h"
-//#include "Error.h"
-//
-//using namespace tkom;
-//
-//int main()
-//{
-//	std::stringstream in{ "//Sample script\nint main()\n{\nint i = 7;\nreturn i;\n}\n" };
-//	Reader reader{ in };
-//	Scanner scanner{ reader };
-//	Parser parser{ scanner };
-//
-//	std::unique_ptr<ast::Program> program;
-//
-//	try
-//	{
-//		program = parser.parse();
-//	}
-//	catch (const Error& e)
-//	{
-//		std::cout << e.what() << std::endl;
-//	}
-//
-//	return 0;
-//}
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
-using namespace std;
+#include <sstream>
+#include "Reader.h"
+#include "Scanner.h"
+#include "Parser.h"
+#include "Error.h"
+#include "stdlib/Functions.h"
 
-const GLuint WIDTH = 800, HEIGHT = 600;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-	cout << key << endl;
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-}
+using namespace tkom;
 
 int main()
 {
-	if (glfwInit() != GL_TRUE)
-	{
-		cout << "GLFW initialization failed" << endl;
-		return -1;
-	}
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	std::stringstream in{ "//Sample script\nint main()\n{\nint i = 7;\nreturn i;\n}\n" };
+	Reader reader{ in };
+	Scanner scanner{ reader };
+	Parser parser{ scanner };
+
+	std::unique_ptr<ast::Program> program;
+
 	try
 	{
-		GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "GKOM - OpenGL 01", nullptr, nullptr);
-		if (window == nullptr)
-			throw exception("GLFW window not created");
-		glfwMakeContextCurrent(window);
-		glfwSetKeyCallback(window, key_callback);
-
-		glewExperimental = GL_TRUE;
-		if (glewInit() != GLEW_OK)
-			throw exception("GLEW Initialization failed");
-
-		glViewport(0, 0, WIDTH, HEIGHT);
-
-		// main loop
-		while (!glfwWindowShouldClose(window))
-		{
-			// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-			glfwPollEvents();
-
-			// Clear the colorbuffer
-			glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			// Swap the screen buffers
-			glfwSwapBuffers(window);
-		}
+		program = parser.parse();
 	}
-	catch (exception ex)
+	catch (const Error& e)
 	{
-		cout << ex.what() << endl;
+		std::cout << e.what() << std::endl;
 	}
-	glfwTerminate();
+
+	lib::Graphic blank = lib::blank(800, 600);
+	lib::Graphic triangle = lib::triangle(100, 100);
+	triangle = lib::translate(triangle, 100, 0);
+	triangle = lib::setColor(triangle, lib::colorRGB(255, 0, 0));
+	triangle = lib::add(triangle, triangle);
+	triangle = lib::translate(triangle, 0, 100);
+	blank = lib::add(blank, triangle);
+	blank = lib::add(blank, lib::circle(30));
+
+	lib::show(blank);
 
 	return 0;
 }
+

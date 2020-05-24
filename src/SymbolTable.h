@@ -21,7 +21,7 @@ namespace tkom {
 		Symbol(ast::DataType _dtype, std::string _id);
 		Symbol(ast::FunctionDef* ptr);
 		Symbol();
-		Symbol(std::string _id);
+		Symbol(std::string _id, ast::DataType);
 	};
 
 	class Scope

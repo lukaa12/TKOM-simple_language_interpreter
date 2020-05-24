@@ -101,7 +101,7 @@ int Expression::eval()
 int MultiplicativeExpression::eval()
 {
 	int value = components[0]->eval();
-	for (int i = 1; i < components.size(); ++i)
+	for (unsigned int i = 1; i < components.size(); ++i)
 	{
 		if (!divisionFlags[i - 1])
 			value *= components[i]->eval();

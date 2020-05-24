@@ -24,6 +24,11 @@ ast::DataType Executor::libAdapter(ast::FunctionCall* call)
 		call->returned = lib::print(std::get<std::string>(call->getCallOperator()->getArguments()[0]->returned));
 		return ast::DataType::Int;
 	}
+	else if (call->getIdentifier() == "show")
+	{
+		if (!checkArguments(call->getCallOperator(), { ast::DataType::Graphic }))
+			throw Error(Error::Type::IncorrectParametersList);
+	}
 }
 
 bool Executor::checkArguments(ast::CallOperator* oper, std::initializer_list<ast::DataType> argTypes)
@@ -43,7 +48,7 @@ bool Executor::checkArguments(ast::CallOperator* oper, std::initializer_list<ast
 bool Executor::checkFunction(std::string identifier)
 {
 	for (auto i : lib::functions)
-		if (i == identifier)
+		if (i.first == identifier)
 			return true;
 	return false;
 }
