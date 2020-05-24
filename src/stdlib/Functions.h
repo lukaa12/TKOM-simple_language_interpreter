@@ -61,5 +61,5 @@ namespace tkom {
 
 	}
 }
-
+ 
 #endif // !FUNCTIONS_H

@@ -1,45 +1,46 @@
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include "Reader.h"
 #include "Scanner.h"
 #include "Parser.h"
 #include "Error.h"
-#include "stdlib/Functions.h"
 
 using namespace tkom;
 
-int main()
+int main(int argc, const char* argv[])
 {
-	std::stringstream in{ R"(
-int main() 
-{
-	print("Hello World!");
-	graphic root = blank(800, 500);
-	graphic triangle = triangle(200, 200);
-	root = add(root, triangle);
+	if (argc != 2)
+	{
+		std::cout << "Usage: interpret <path_to_source>" << std::endl;
+		return 2;
+	}
 
-	show(root);
+	std::ifstream inputFile;
+
+	inputFile.open(argv[1]);
+	if (!inputFile) 
+	{
+		std::cerr << "Unable to open file";
+		return 1;
+	}
 	
-	return 0;
-}
-)" };
-	Reader reader{ in };
+	Reader reader{ inputFile };
 	Scanner scanner{ reader };
 	Parser parser{ scanner };
 
 	std::unique_ptr<ast::Program> program;
-	int returned;
 
 	try
 	{
 		program = parser.parse();
-		returned = program->exec();
+		int returned = program->exec();
 		std::cout << "Program returned: " << returned << std::endl;
 	}
 	catch (const Error& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
+	inputFile.close();
 
 	return 0;
 }

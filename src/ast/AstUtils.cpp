@@ -137,6 +137,7 @@ int PrimaryExpression::eval()
 	case PrimaryExpression::Type::Bracket:
 		return this->getValue<BracketExpression>()->getExpression()->eval();
 	}
+	throw Error();
 }
 
 //CONDITIONS
@@ -182,6 +183,7 @@ int RelationCondition::eval()
 			return getFirst()->eval() != getSecond()->eval() ? 1 : 0;
 		}
 	}
+	throw Error();
 }
 
 int PrimaryCondition::eval()
@@ -211,6 +213,7 @@ int PrimaryCondition::eval()
 		else
 			return eval;
 	}
+	throw Error();
 }
 
 //FUNCTION CALLING
@@ -483,7 +486,7 @@ DataType RightValue::getDataType()
 		return DataType::Int;
 	case Type::StringLiteral:
 		return DataType::String;
-	default:
+	case Type::Identifier:
 	{
 		Symbol* sym = nullptr;
 		try
@@ -491,6 +494,20 @@ DataType RightValue::getDataType()
 		catch (const std::exception & e)
 		{ if (e.what() == "Undefined reference")
 				throw Error(Error::Type::UndefinedReference); }
+		return sym->dataType;
+	}
+	case Type::Function:
+	{
+		Symbol* sym = nullptr;
+		try
+		{
+			sym = Executor::symbolTable.getSymbol(getValue<ast::FunctionCall>()->getIdentifier());
+		}
+		catch (const std::exception & e)
+		{
+			if (e.what() == "Undefined reference")
+				throw Error(Error::Type::UndefinedReference);
+		}
 		return sym->dataType;
 	}
 	}
@@ -541,4 +558,5 @@ DataType RightValue::eval()
 		return type;
 	}
 	}
+	throw Error();
 }

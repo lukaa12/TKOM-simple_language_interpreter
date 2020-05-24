@@ -49,7 +49,7 @@ namespace tkom {
 			void render(GLuint shader, glm::mat3 transform);
 			void destroy();
 
-			Graphic() : height(600), width(800), color(Color()), drawingMode(GL_TRIANGLES), fill(true)
+			Graphic() : height(600), width(800), color(Color()), drawingMode(GL_TRIANGLES), fill(true), EBO(0), VBO(0), VAO(0)
 			{}
 			
 		};

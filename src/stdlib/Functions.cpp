@@ -98,8 +98,8 @@ Graphic tkom::lib::circle(int r)
 	circle.vertices = { 0.0f, 0.0f };
 	for (int i = 0; i != 36; ++i)
 	{
-		circle.vertices.push_back(glm::cos(glm::radians(i * 10.0))*r);
-		circle.vertices.push_back(glm::sin(glm::radians(i * 10.0))*r);
+		circle.vertices.push_back(glm::cos(glm::radians(i * 10.0f))*r);
+		circle.vertices.push_back(glm::sin(glm::radians(i * 10.0f))*r);
 		circle.indices.push_back(0);
 		circle.indices.push_back(i + 1);
 		circle.indices.push_back(i + 2 > 36 ? 1 : i + 2);

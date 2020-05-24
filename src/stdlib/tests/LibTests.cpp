@@ -367,4 +367,36 @@ BOOST_AUTO_TEST_CASE(Set_color_test2)
 	BOOST_CHECK_EQUAL(g.color.color.z, 0.0f);
 }
 
+BOOST_FIXTURE_TEST_CASE(Function_as_rvalue_test, ExecutionFix)
+{
+	auto program = getProgram(R"(
+graphic tree(int levels)
+{
+	graphic base = rectangle(50, 100);
+	color c2 = color_rgb(10, 250, 20);
+	base = set_color(base, color_rgb(210, 105, 30));
+	graphic level = triangle(120, 120);
+	level = set_color(level, c2);
+	while (levels > 0)
+	{
+		level = translate(level, 0, 50);
+		base = add(base, level);
+		levels = levels - 1;
+	}
+	return base;
+}
+
+int main()
+{
+	graphic root = blank(800, 600);
+	graphic tree1 = tree(3);
+	root = add(root, tree1);
+	//show(root);
+	return 0;
+}
+)");
+
+	BOOST_CHECK_NO_THROW(program->exec());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
