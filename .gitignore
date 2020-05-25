@@ -1,5 +1,6 @@
 docs/*.gz
 docs/*.tex
+docs/*.log
 tkom-simple_language_interpreter.vcxproj.user
 tkom-simple_language_interpreter.vcxproj.filters
 .vs/*
