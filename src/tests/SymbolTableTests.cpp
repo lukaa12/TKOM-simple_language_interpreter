@@ -1,4 +1,5 @@
 #include "../SymbolTable.h"
+#include "../Error.h"
 #include <boost/test/unit_test.hpp>
 
 using namespace tkom;
@@ -9,7 +10,7 @@ BOOST_AUTO_TEST_CASE(Try_to_get_symbol_from_empty)
 {
 	SymbolTable table;
 
-	BOOST_CHECK_THROW(table.getSymbol("id"), std::exception);
+	BOOST_CHECK_THROW(table.getSymbol("id"), Error);
 }
 
 BOOST_AUTO_TEST_CASE(Add_symbol_to_global_scope)
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE(Try_to_get_uninitialized_symbol)
 	SymbolTable table;
 	table.addGlobalSymbol(Symbol(ast::DataType::Int, "i"));
 
-	BOOST_CHECK_THROW(table.getSymbol("j"), std::exception);
+	BOOST_CHECK_THROW(table.getSymbol("j"), Error);
 }
 
 BOOST_AUTO_TEST_CASE(Adding_local_symbols_test)
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE(Redefining_the_symbol)
 {
 	Scope scope;
 	scope.addSymbol(Symbol(ast::DataType::Int, "i"));
-	BOOST_CHECK_THROW(scope.addSymbol(Symbol(ast::DataType::Int, "i")), std::exception);
+	BOOST_CHECK_THROW(scope.addSymbol(Symbol(ast::DataType::Int, "i")), Error);
 }
 
 BOOST_AUTO_TEST_CASE(More_symbols_in_scope)

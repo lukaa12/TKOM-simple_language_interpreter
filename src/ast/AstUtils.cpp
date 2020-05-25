@@ -225,9 +225,8 @@ DataType FunctionCall::exec()
 	Symbol* myFunction = nullptr;
 	try
 	{ myFunction = Executor::symbolTable.getSymbol(identifier); }
-	catch (const std::exception& e)
-	{ if (e.what() == "Undefined reference")
-			throw Error(pos, Error::Type::UndefinedReference); }
+	catch (const Error&)
+	{ throw Error(pos, Error::Type::UndefinedReference); }
 
 	if (myFunction->type != IdType::Function)
 		throw Error(pos, Error::Type::CallOnNonFunction);
@@ -449,12 +448,9 @@ void AssignStatement::exec()
 	Symbol* lval = nullptr;
 	try
 	{ lval = Executor::symbolTable.getSymbol(identifier); }
-	catch (const std::exception& e)
-	{ 
-		std::cout << e.what() << std::endl;
-		if (e.what() == "Undefined reference")
-			throw Error(pos, Error::Type::UndefinedReference);
-	}
+	catch (const Error& )
+	{ throw Error(pos, Error::Type::UndefinedReference); }
+
 	if (rvalue->eval() != lval->dataType)
 		throw Error(pos, Error::Type::UncompatibleType);
 	switch (lval->dataType)
@@ -491,26 +487,23 @@ DataType RightValue::getDataType()
 		Symbol* sym = nullptr;
 		try
 		{ sym = Executor::symbolTable.getSymbol(std::get<std::string>(value)); }
-		catch (const std::exception & e)
-		{ if (e.what() == "Undefined reference")
-				throw Error(pos, Error::Type::UndefinedReference); }
+		catch (const Error& )
+		{ throw Error(pos, Error::Type::UndefinedReference); }
+		
 		return sym->dataType;
 	}
 	case Type::Function:
 	{
 		Symbol* sym = nullptr;
 		try
-		{
-			sym = Executor::symbolTable.getSymbol(getValue<ast::FunctionCall>()->getIdentifier());
-		}
-		catch (const std::exception & e)
-		{
-			if (e.what() == "Undefined reference")
-				throw Error(pos, Error::Type::UndefinedReference);
-		}
+		{ sym = Executor::symbolTable.getSymbol(getValue<ast::FunctionCall>()->getIdentifier()); }
+		catch (const Error & )
+		{ throw Error(pos, Error::Type::UndefinedReference); }
+
 		return sym->dataType;
 	}
 	}
+	throw Error();
 }
 
 DataType RightValue::eval()
@@ -531,9 +524,9 @@ DataType RightValue::eval()
 		Symbol *sym = nullptr;
 		try
 		{ sym = Executor::symbolTable.getSymbol(std::get<std::string>(value)); }
-		catch (const std::exception & e)
-		{ if (e.what() == "Undefined reference")
-				throw Error(pos, Error::Type::UndefinedReference); }
+		catch (const Error & )
+		{ throw Error(pos, Error::Type::UndefinedReference); }
+
 		switch (sym->dataType)
 		{
 		case DataType::Int:

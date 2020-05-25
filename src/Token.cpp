@@ -1,4 +1,5 @@
 #include "Token.h"
+#include "Error.h"
 
 using namespace tkom;
 
@@ -46,13 +47,13 @@ Token::Type Token::getType() const
 int Token::getIntVal() const
 {
 	if (type != Type::IntLiteral)
-		throw std::exception("Cannot get int value of token");
+		throw Error("Cannot get int value of token");
 	return int_value;
 }
 std::string Token::getStrVal() const
 {
 	if (type != Type::Identifier && type != Type::StringLiteral)
-		throw std::exception("Cannot get string value of token");
+		throw Error("Cannot get string value of token");
 	return s_value;
 }
 Token::Position Token::getPosition() const
@@ -132,7 +133,6 @@ std::string Token::toString(Token::Type type)
         return "Multiply";
     case tkom::Token::Type::Divide:
         return "Divide";
-    default:
-        break;
 	}
+    throw Error();
 }

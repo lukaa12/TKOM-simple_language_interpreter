@@ -63,9 +63,9 @@ Error::Error(const Token& _token, Type _type): info(_token), type(_type)
 		whatMessage += Token::toString(std::get<Token>(info).getType());
 }
 
-Error::Error(): type(Error::Type::UndefinedReference)
+Error::Error(std::string s): type(Error::Type::UndefinedReference)
 {
-	whatMessage = "Unknown error";
+	whatMessage = s;
 }
 
 const char* Error::what() const

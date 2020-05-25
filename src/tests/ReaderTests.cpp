@@ -1,4 +1,5 @@
 #include "..\Reader.h"
+#include "../Error.h"
 #include <boost/test/unit_test.hpp>
 #include <istream>
 #include <sstream>
@@ -12,7 +13,7 @@ BOOST_AUTO_TEST_CASE(Invalid_source_stream)
 {
 	std::istringstream stream;
 	stream.setstate(std::ios::failbit);
-	BOOST_CHECK_THROW(Reader{ stream }, std::exception);
+	BOOST_CHECK_THROW(Reader{ stream }, Error);
 }
 
 BOOST_AUTO_TEST_CASE(Open_empty_file)
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE(Read_from_stream)
 	std::string readed;
 	std::istringstream in{ test_str };
 	Reader reader{ in };
-	for (auto i = 0; i < test_str.size(); ++i)
+	for (size_t i = 0; i < test_str.size(); ++i)
 		readed.push_back(reader.next());
 	
 	BOOST_CHECK_EQUAL_COLLECTIONS(test_str.begin(), test_str.end(), readed.begin(), readed.end());
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE(Peek_test)
 	std::string readed;
 	std::istringstream in{ test_str };
 	Reader reader{ in };
-	for (auto i = 0; i < test_str.size(); ++i)
+	for (size_t i = 0; i < test_str.size(); ++i)
 	{
 		readed.push_back(reader.peek());
 		reader.next();

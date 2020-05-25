@@ -2,6 +2,7 @@
 #define EXPRESSIONS_H
 
 #include "AstNode.h"
+#include "../Error.h"
 
 namespace tkom {
 	namespace ast {
@@ -74,7 +75,7 @@ namespace tkom {
 				component->parent = this;
 				components.push_back(std::move(component));
 				if (components.size() != divisionFlags.size() + 1)
-					throw std::exception("Illegal multiplicative expression");
+					throw Error("Illegal multiplicative expression");
 			}
 
 			void addOperator(bool isDivision)

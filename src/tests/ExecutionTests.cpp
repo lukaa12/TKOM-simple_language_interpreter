@@ -91,8 +91,8 @@ string fun(int i)
 	Executor executor{ program.release() };
 	BOOST_CHECK_NO_THROW(executor.symbolTable.getSymbol("main"));
 	BOOST_CHECK_NO_THROW(executor.symbolTable.getSymbol("fun"));
-	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("x"), std::exception);
-	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("name"), std::exception);
+	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("x"), Error);
+	BOOST_CHECK_THROW(executor.symbolTable.getSymbol("name"), Error);
 
 }
 

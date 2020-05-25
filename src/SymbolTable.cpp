@@ -1,5 +1,6 @@
 #include "SymbolTable.h"
 #include "stdlib/Functions.h"
+#include "Error.h"
 
 using namespace tkom;
 
@@ -21,7 +22,7 @@ Symbol* SymbolTable::getSymbol(std::string id)
 
 	if (symbol == nullptr)
 	{
-		throw std::exception("Undefined reference");
+		throw Error("Undefined reference");
 	}
 	
 	return symbol;
@@ -45,7 +46,7 @@ void SymbolTable::enterScope()
 void SymbolTable::leaveScope()
 {
 	if (local.size() == 0)
-		throw std::exception("Cannot leave scope");
+		throw Error("Cannot leave scope");
 	local.pop();
 }
 
@@ -66,7 +67,7 @@ Symbol* Scope::getSymbol(std::string id)
 void Scope::addSymbol(const Symbol& symbol)
 {
 	if (!(this->symbols.insert({ symbol.identifier, symbol }).second))
-		throw std::exception("Symbol already definied in this scope");
+		throw Error("Symbol already definied in this scope");
 }
 
 Symbol::Symbol(ast::DataType _dtype, std::string _id): type(ast::IdType::Variable), dataType(_dtype), identifier(_id)
