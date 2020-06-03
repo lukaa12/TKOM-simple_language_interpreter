@@ -7,6 +7,8 @@
 #include <variant>
 #include <ostream>
 
+#include "../Token.h"
+
 namespace tkom {
 	namespace ast {
 
@@ -38,19 +40,16 @@ namespace tkom {
 		class Node 
 		{
 		public:
-			Node(): parent(nullptr)
+			Node() : parent(nullptr), pos{ 0, 0 }
 			{}
 
 			virtual std::string toString()
 			{
-				throw std::exception("TODO");
-			}
-			virtual void eval()
-			{
-				throw std::exception("TODO");
+				return "";
 			}
 		
 			Node* parent;
+			Token::Position pos;
 		};
 
 		class CallOperator;

@@ -35,6 +35,8 @@ namespace tkom {
 				return Type::Assign;
 			}
 
+			void exec();
+
 		private:
 			std::string identifier;
 			std::unique_ptr<RightValue> rvalue;

@@ -2,6 +2,7 @@
 #define WHILE_LOOP_H
 
 #include "AstNode.h"
+#include "../stdlib/DataTypes.h"
 
 namespace tkom {
 	namespace ast {
@@ -37,6 +38,17 @@ namespace tkom {
 			{
 				return Type::While;
 			}
+
+			std::string toString()
+			{
+				return "WhileLoop";
+			}
+
+			void exec();
+			bool wasReturned;
+			DataType dtype;
+			std::variant<int, std::string, lib::Color, lib::Graphic> returned;
+
 		private:
 			std::unique_ptr<Condition> condition;
 			std::unique_ptr<Body> whileBody;

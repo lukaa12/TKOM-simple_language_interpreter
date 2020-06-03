@@ -2,6 +2,7 @@
 #define BODY_H
 
 #include "AstNode.h"
+#include "../stdlib/DataTypes.h"
 
 namespace tkom {
 	namespace ast {
@@ -19,6 +20,12 @@ namespace tkom {
 			{
 				return instructions;
 			}
+
+			DataType exec();
+
+			std::variant<int, std::string, lib::Color, lib::Graphic> returned;
+			bool wasBreak;
+			bool wasReturn;
 
 		private:
 			std::vector<std::unique_ptr<Instruction>> instructions;

@@ -1,1 +1,50 @@
-abc e gh z
+graphic spruce(int levels)
+{
+	graphic base = rectangle(50,100);
+	base = set_color(base, color_rgb(210, 105, 30));
+	graphic level = triangle(120, 150);
+	level = set_color(level, color_rgb(2, 100, 64));
+	while(levels > 0)
+	{
+		level = translate(level, 0, 50 - levels * 5);
+		level = scale(level, 80, 80);
+		base = add(base, level);
+		levels = levels -1;
+	}
+	return base;
+}
+
+graphic forest(int composition)
+{
+	graphic tree = spruce(5), tree2 = spruce(4);
+	tree2 = translate(tree2, -100, 0);
+	tree = add(tree, tree2);
+	tree2 = spruce(3);
+	if(composition)
+		tree2 = translate(tree2, 150, 0);
+	else
+	{
+		tree2 = translate(tree2, 90, 0);	
+		tree2 = rotate(tree2, 5);
+	}
+	tree = add(tree, tree2);
+	return tree;
+}
+
+
+int main() 
+{
+	graphic root = blank(800, 600), sun;
+	graphic ground = rectangle(800,350);
+	ground = set_color(ground, color_rgb(144, 238, 144));
+	sun = circle(60);
+	sun = set_color(sun, color_rgb(255, 255, 161));
+	sun = translate(sun, 300, 200);
+	root = add(root, sun);
+	ground = translate(ground, 0, -150);
+	root = add(root, ground);
+	root = set_color(root, color_rgb(212, 235, 242));
+	root = add(root, forest(0));
+	show(root);
+	return 0;
+}

@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(Error_throwing_test2)
 	}
 	catch (const Error& e)
 	{
-		BOOST_CHECK_EQUAL(e.what(), "Line: 3 pos: 0 Incorrect parameters for function: ");
+		BOOST_CHECK_EQUAL(e.what(), "Line: 3 pos: 0 Incorrect parameters for function");
 	}
 }
 

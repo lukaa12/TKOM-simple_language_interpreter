@@ -1,4 +1,5 @@
 #include "Scanner.h"
+#include "Error.h"
 #include <cctype>
 #include <string>
 
@@ -52,7 +53,7 @@ void Scanner::ignoreSpaces()
 Token Scanner::endOfFile(const Token::Position& pos)
 {
 	if (reader.next() != '\0')
-		throw std::exception("End of file cannot be reached");
+		throw Error("End of file cannot be reached");
 	return Token{ T::Eof, pos };
 }
 

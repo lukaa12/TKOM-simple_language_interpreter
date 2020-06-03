@@ -25,6 +25,8 @@ namespace tkom {
 
 			virtual ~Instruction()
 			{}
+
+			virtual void exec();
 		};
 
 	}

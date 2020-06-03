@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "Error.h"
+#include "Executor.h"
 
 using namespace tkom;
 
@@ -16,7 +17,8 @@ std::unique_ptr<ast::Program> Parser::parse()
 		this->symbolTable.addGlobalSymbol(Symbol(func.get()));
 		program->addFunction(std::move(func));
 	}
-
+	this->symbolTable.leaveAllScopes();
+	Executor::symbolTable = symbolTable;
 	return program;
 }
 
@@ -26,6 +28,7 @@ std::unique_ptr<ast::FunctionDef> Parser::readFunctionDef()
 	this->symbolTable.enterScope();
 	func->setReturnType(getDataType());
 	this->advance();
+	func->pos = token.getPosition();
 	this->requireType({ Token::Type::Identifier });
 	func->setIdentifier(token.getStrVal());
 	this->advance();
@@ -37,6 +40,7 @@ std::unique_ptr<ast::FunctionDef> Parser::readFunctionDef()
 std::unique_ptr<ast::CallDef> Parser::readCallDef()
 {
 	auto callDef = std::make_unique<ast::CallDef>();
+	callDef->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
 	while (!this->checkType({ Token::Type::BracketClose }))
@@ -46,6 +50,7 @@ std::unique_ptr<ast::CallDef> Parser::readCallDef()
 		this->requireType({ Token::Type::Identifier });
 		std::string argName = this->token.getStrVal();
 		callDef->addArgument(std::make_pair(type, argName));
+		this->symbolTable.addLocalSymbol(Symbol(type, argName));
 		this->advance();
 		this->requireType({ Token::Type::BracketClose, Token::Type::Comma });
 		if (this->checkType({ Token::Type::Comma }))
@@ -59,6 +64,7 @@ std::unique_ptr<ast::CallDef> Parser::readCallDef()
 std::unique_ptr<ast::Body> Parser::readBodyBlock()
 {
 	auto body = std::make_unique<ast::Body>();
+	body->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::CurlyOpen });
 
 	while (!this->checkType({ Token::Type::CurlyClose }))
@@ -72,6 +78,7 @@ std::unique_ptr<ast::Body> Parser::readBodyBlock()
 std::unique_ptr<ast::CallOperator> Parser::readCallOperator()
 {
 	auto oper = std::make_unique<ast::CallOperator>();
+	oper->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
 	while (!this->checkType({ Token::Type::BracketClose }))
@@ -95,7 +102,7 @@ std::unique_ptr<ast::Instruction> Parser::readInstruction()
 	else if (this->token.getType() == Token::Type::While)
 		return std::unique_ptr<ast::Instruction>(this->readWhileLoop());
 	else if (token.getType() == Token::Type::Identifier)
-		if (symbolTable.getSymbol(token.getStrVal()).type == ast::IdType::Function)
+		if (symbolTable.getSymbol(token.getStrVal())->type == ast::IdType::Function)
 			return std::unique_ptr<ast::Instruction>(this->readFunctionExec());
 		else
 			return std::unique_ptr<ast::Instruction>(this->readAssignStatement());
@@ -114,6 +121,7 @@ std::unique_ptr<ast::Instruction> Parser::readInstruction()
 std::unique_ptr<ast::IfStatement> Parser::readIfStatement()
 {
 	auto ifStatement = std::make_unique<ast::IfStatement>();
+	ifStatement->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::If });
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	ifStatement->setCondition(this->readCondition());
@@ -146,6 +154,7 @@ std::unique_ptr<ast::IfStatement> Parser::readIfStatement()
 std::unique_ptr<ast::WhileLoop> Parser::readWhileLoop()
 {
 	auto whileLoop = std::make_unique<ast::WhileLoop>();
+	whileLoop->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::While });
 	this->requireAndConsume({ Token::Type::BracketOpen });
 
@@ -167,6 +176,7 @@ std::unique_ptr<ast::WhileLoop> Parser::readWhileLoop()
 std::unique_ptr<ast::AssignStatement> Parser::readAssignStatement()
 {
 	auto assign = std::make_unique<ast::AssignStatement>();
+	assign->pos = token.getPosition();
 	this->requireType({ Token::Type::Identifier });
 	assign->setIdentifier(token.getStrVal());
 	this->advance();
@@ -179,6 +189,7 @@ std::unique_ptr<ast::AssignStatement> Parser::readAssignStatement()
 std::unique_ptr<ast::InitStatement> Parser::readInitStatement()
 {
 	auto initStatement = std::make_unique<ast::InitStatement>();
+	initStatement->pos = token.getPosition();
 	initStatement->setDataType(this->getDataType());
 
 	do
@@ -207,6 +218,7 @@ std::unique_ptr<ast::InitStatement> Parser::readInitStatement()
 std::unique_ptr<ast::FunctionExec> Parser::readFunctionExec()
 {
 	auto exec = std::make_unique<ast::FunctionExec>();
+	exec->pos = token.getPosition();
 	exec->setFunctionCall(this->readFunctionCall());
 	this->requireAndConsume({ Token::Type::Semicolon });
 	return exec;
@@ -215,6 +227,7 @@ std::unique_ptr<ast::FunctionExec> Parser::readFunctionExec()
 std::unique_ptr<ast::ReturnStatement> Parser::readReturnStatement()
 {
 	auto statement = std::make_unique<ast::ReturnStatement>();
+	statement->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::Return });
 	statement->setValue(this->readRightValue());
 	this->requireAndConsume({ Token::Type::Semicolon });
@@ -224,6 +237,7 @@ std::unique_ptr<ast::ReturnStatement> Parser::readReturnStatement()
 std::unique_ptr<ast::RightValue> Parser::readRightValue()
 {
 	auto right = std::make_unique<ast::RightValue>();
+	right->pos = token.getPosition();
 	this->requireType({ Token::Type::StringLiteral, Token::Type::IntLiteral, Token::Type::Identifier, Token::Type::Minus, Token::Type::BracketOpen });
 	if (this->checkType({ Token::Type::StringLiteral }))
 	{
@@ -231,9 +245,9 @@ std::unique_ptr<ast::RightValue> Parser::readRightValue()
 		right->setValue(this->token.getStrVal());
 		this->advance();
 	}
-	else if (this->checkType({ Token::Type::Identifier }) && symbolTable.getSymbol(this->token.getStrVal()).dataType != ast::DataType::Int)
+	else if (this->checkType({ Token::Type::Identifier }) && symbolTable.getSymbol(this->token.getStrVal())->dataType != ast::DataType::Int)
 	{
-		if (symbolTable.getSymbol(this->token.getStrVal()).type == ast::IdType::Variable)
+		if (symbolTable.getSymbol(this->token.getStrVal())->type == ast::IdType::Variable)
 		{
 			right->setType(ast::RightValue::Type::Identifier);
 			right->setValue(this->token.getStrVal());
@@ -254,6 +268,7 @@ std::unique_ptr<ast::RightValue> Parser::readRightValue()
 std::unique_ptr<ast::FunctionCall> Parser::readFunctionCall()
 {
 	auto call = std::make_unique<ast::FunctionCall>();
+	call->pos = token.getPosition();
 	this->requireType({ Token::Type::Identifier });
 	call->setIdentifier(this->token.getStrVal());
 	this->advance();
@@ -264,6 +279,7 @@ std::unique_ptr<ast::FunctionCall> Parser::readFunctionCall()
 std::unique_ptr<ast::Expression> Parser::readExpression()
 {
 	auto expr = std::make_unique<ast::Expression>();
+	expr->pos = token.getPosition();
 	bool minus = false;
 	minus = this->checkType({ Token::Type::Minus });
 	if (minus)
@@ -281,6 +297,7 @@ std::unique_ptr<ast::Expression> Parser::readExpression()
 std::unique_ptr<ast::MultiplicativeExpression> Parser::readMultiplicativeExpression()
 {
 	auto expr = std::make_unique<ast::MultiplicativeExpression>();
+	expr->pos = token.getPosition();
 	expr->addComponent(this->readPrimaryExpression());
 	while (this->checkType({ Token::Type::Multiply, Token::Type::Divide }))
 	{
@@ -294,10 +311,11 @@ std::unique_ptr<ast::MultiplicativeExpression> Parser::readMultiplicativeExpress
 std::unique_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 {
 	auto expr = std::make_unique<ast::PrimaryExpression>();
+	expr->pos = token.getPosition();
 	this->requireType({ Token::Type::Identifier, Token::Type::IntLiteral, Token::Type::BracketOpen });
 	if (this->checkType({ Token::Type::Identifier }))
 	{
-		if (symbolTable.getSymbol(this->token.getStrVal()).type == ast::IdType::Function)
+		if (symbolTable.getSymbol(this->token.getStrVal())->type == ast::IdType::Function)
 		{
 			expr->setType(ast::PrimaryExpression::Type::Function);
 			expr->setValue(this->readFunctionCall());
@@ -326,6 +344,7 @@ std::unique_ptr<ast::PrimaryExpression> Parser::readPrimaryExpression()
 std::unique_ptr<ast::BracketExpression> Parser::readBracketExpression()
 {
 	auto expr = std::make_unique<ast::BracketExpression>();
+	expr->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	expr->setExpression(this->readExpression());
 	this->requireAndConsume({ Token::Type::BracketClose });
@@ -336,6 +355,7 @@ std::unique_ptr<ast::BracketExpression> Parser::readBracketExpression()
 std::unique_ptr<ast::Condition> Parser::readCondition()
 {
 	auto cond = std::make_unique<ast::Condition>();
+	cond->pos = token.getPosition();
 	cond->addComponent(this->readAndCondition());
 	while (this->checkType({ Token::Type::Or }))
 	{
@@ -348,6 +368,7 @@ std::unique_ptr<ast::Condition> Parser::readCondition()
 std::unique_ptr<ast::AndCondition> Parser::readAndCondition()
 {
 	auto cond = std::make_unique<ast::AndCondition>();
+	cond->pos = token.getPosition();
 	cond->addComponent(this->readRelationCondition());
 	while (this->checkType({ Token::Type::And }))
 	{
@@ -360,6 +381,7 @@ std::unique_ptr<ast::AndCondition> Parser::readAndCondition()
 std::unique_ptr<ast::RelationCondition> Parser::readRelationCondition()
 {
 	auto cond = std::make_unique<ast::RelationCondition>();
+	cond->pos = token.getPosition();
 	cond->setFirst(this->readPrimaryCondition());
 	ast::RelationOperator oper;
 	
@@ -380,6 +402,7 @@ std::unique_ptr<ast::RelationCondition> Parser::readRelationCondition()
 std::unique_ptr<ast::PrimaryCondition> Parser::readPrimaryCondition()
 {
 	auto cond = std::make_unique<ast::PrimaryCondition>();
+	cond->pos = token.getPosition();
 	if (this->checkType({ Token::Type::Negation }))
 	{
 		cond->setNegated(true);
@@ -401,6 +424,7 @@ std::unique_ptr<ast::PrimaryCondition> Parser::readPrimaryCondition()
 std::unique_ptr<ast::BracesCondition> Parser::readBracesCondition()
 {
 	auto cond = std::make_unique<ast::BracesCondition>();
+	cond->pos = token.getPosition();
 	this->requireAndConsume({ Token::Type::BracketOpen });
 	cond->setCondition(this->readCondition());
 	this->requireAndConsume({ Token::Type::BracketClose });

@@ -6,6 +6,7 @@
 #include <stack>
 #include <variant>
 #include "ast/AstNode.h"
+#include "stdlib/DataTypes.h"
 
 namespace tkom {
 
@@ -15,17 +16,18 @@ namespace tkom {
 		ast::IdType type;
 		ast::DataType dataType;
 		std::string identifier;
-		std::variant<int, std::string, ast::FunctionDef*> value;
+		std::variant<int, std::string, lib::Color, lib::Graphic, ast::FunctionDef*> value;
 
 		Symbol(ast::DataType _dtype, std::string _id);
 		Symbol(ast::FunctionDef* ptr);
 		Symbol();
+		Symbol(std::string _id, ast::DataType);
 	};
 
 	class Scope
 	{
 	public:
-		Symbol getSymbol(std::string id);
+		Symbol* getSymbol(std::string id);
 		void addSymbol(const Symbol& symbol);
 	private:
 		std::unordered_map<std::string, Symbol> symbols;
@@ -34,11 +36,13 @@ namespace tkom {
 	class SymbolTable
 	{
 	public:
-		Symbol getSymbol(std::string id);
+		SymbolTable();
+		Symbol* getSymbol(std::string id);
 		void addGlobalSymbol(const Symbol& symbol);
 		void addLocalSymbol(const Symbol& symbol);
 		void enterScope();
 		void leaveScope();
+		void leaveAllScopes();
 	private:
 		Scope global;
 		std::stack<Scope> local;

@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(Expressions_hierarchy)
 	expr2->addComponent(std::make_pair(false, std::move(expr3)));
 	expr1->setExpression(std::move(expr2));
 
-	BOOST_CHECK_NO_THROW(expr1->getExpression()->getComponents()[0].second->getComponents()[0].get());
+	BOOST_CHECK(expr1->getExpression()->getComponents()[0].second->getComponents()[0].get() != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(RightVal_test)

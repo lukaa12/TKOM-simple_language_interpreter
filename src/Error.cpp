@@ -12,9 +12,31 @@ Error::Error(const Token::Position& pos, Type _type): info(pos), type(_type)
 		whatMessage += "Missing statement: ";
 		break;
 	case Type::IncorrectParametersList:
-		whatMessage += "Incorrect parameters for function: ";
+		whatMessage += "Incorrect parameters for function";
+		break;
+	case Type::MissingMain:
+		whatMessage = "Main function not found";
+		break;
+	case Type::UncompatibleType:
+		whatMessage = "Uncompatible type of variable";
+		break;
+	case Type::UndefinedReference:
+		whatMessage = "Undefined reference to symbol";
+		break;
+	case Type::CallOnNonFunction:
+		whatMessage = "Call on non function object";
+		break;
+	case Type::DivisionByZero:
+		whatMessage = "Division by zero";
+		break;
+	case Type::BreakOutsideLoop:
+		whatMessage = "Break outside loop";
+		break;
+	case Type::FunctionNotReturnedValue:
+		whatMessage = "Function must return a value";
 		break;
 	default:
+		whatMessage = "Unknown error";
 		break;
 	}
 }
@@ -39,6 +61,11 @@ Error::Error(const Token& _token, Type _type): info(_token), type(_type)
 	}
 	if (std::get<Token>(info).getType() != Token::Type::Invalid)
 		whatMessage += Token::toString(std::get<Token>(info).getType());
+}
+
+Error::Error(std::string s): type(Error::Type::UndefinedReference)
+{
+	whatMessage = s;
 }
 
 const char* Error::what() const

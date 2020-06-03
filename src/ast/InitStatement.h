@@ -38,6 +38,8 @@ namespace tkom {
 				return Type::Init;
 			}
 
+			void exec();
+
 		private:
 			DataType dataType;
 			std::vector<std::pair<std::string, std::unique_ptr<RightValue>>> initiated;

@@ -18,7 +18,7 @@ namespace tkom {
 
 			void setCondition(std::unique_ptr<Condition> ptr);
 
-			const Condition* getCondition()
+			Condition* getCondition()
 			{
 				return condition.get();
 			}
@@ -64,6 +64,8 @@ namespace tkom {
 			{
 				return negated;
 			}
+
+			int eval(); // interpreting ints as conditions like in C
 
 			template<typename T>
 			T* getCondition();
@@ -118,6 +120,8 @@ namespace tkom {
 				return relationOper;
 			}
 
+			int eval();
+
 		private:
 			std::unique_ptr<PrimaryCondition> first;
 			RelationOperator relationOper;
@@ -137,6 +141,9 @@ namespace tkom {
 				ptr->parent = this;
 				relationConditions.push_back(std::move(ptr));
 			}
+
+			int eval();
+
 		private:
 			std::vector<std::unique_ptr<RelationCondition>> relationConditions;
 		};
@@ -154,6 +161,8 @@ namespace tkom {
 				ptr->parent = this;
 				andConditions.push_back(std::move(ptr));
 			}
+
+			int eval();
 
 		private:
 			std::vector<std::unique_ptr<AndCondition>> andConditions;

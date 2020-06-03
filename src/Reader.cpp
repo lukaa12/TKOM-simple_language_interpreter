@@ -1,6 +1,6 @@
 #include "Reader.h"
 #include <iostream>
-#include <exception>
+#include "Error.h"
 #include <string>
 
 using namespace tkom;
@@ -8,7 +8,7 @@ using namespace tkom;
 Reader::Reader(std::istream& _stream): stream(_stream), position({1, 0})
 {
 	if (this->stream.fail())
-		throw std::exception("Input stream error!");
+		throw Error("Input stream error!");
 }
 
 const char Reader::next()
@@ -28,7 +28,7 @@ const char Reader::next()
 		this->position.column = 0;
 		if ((actual = this->stream.get()) != '\n')
 		{
-			std::exception("Format not supported");
+			throw Error("Format not supported");
 		}
 	}
 	return actual;

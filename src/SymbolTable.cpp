@@ -1,19 +1,29 @@
 #include "SymbolTable.h"
+#include "stdlib/Functions.h"
+#include "Error.h"
 
 using namespace tkom;
 
-Symbol SymbolTable::getSymbol(std::string id)
+SymbolTable::SymbolTable()
 {
-	Symbol symbol(ast::DataType::Int, "!");
+	for (auto i : lib::functions)
+		this->addGlobalSymbol(Symbol(i.first, i.second));
+}
+
+Symbol* SymbolTable::getSymbol(std::string id)
+{
+	Symbol* symbol = nullptr;
 
 	if (local.size() != 0)
 		symbol = local.top().getSymbol(id);
 
-	if (symbol.identifier == "!")
+	if (symbol == nullptr)
 		symbol = this->global.getSymbol(id);
 
-	if (symbol.identifier == "!")
-		throw std::exception("Undefined reference");
+	if (symbol == nullptr)
+	{
+		throw Error("Undefined reference");
+	}
 	
 	return symbol;
 }
@@ -36,22 +46,28 @@ void SymbolTable::enterScope()
 void SymbolTable::leaveScope()
 {
 	if (local.size() == 0)
-		throw std::exception("Cannot leave scope");
+		throw Error("Cannot leave scope");
 	local.pop();
 }
 
-Symbol Scope::getSymbol(std::string id)
+void SymbolTable::leaveAllScopes()
+{
+	while (local.size() != 0)
+		local.pop();
+}
+
+Symbol* Scope::getSymbol(std::string id)
 {
 	auto symbol = this->symbols.find(id);
 	if (symbol == symbols.end())
-		return Symbol(tkom::ast::DataType::Int, "!");
-	return symbol->second;
+		return nullptr;
+	return &symbol->second;
 }
 
 void Scope::addSymbol(const Symbol& symbol)
 {
 	if (!(this->symbols.insert({ symbol.identifier, symbol }).second))
-		throw std::exception("Symbol already definied in this scope");
+		throw Error("Symbol already definied in this scope");
 }
 
 Symbol::Symbol(ast::DataType _dtype, std::string _id): type(ast::IdType::Variable), dataType(_dtype), identifier(_id)
@@ -62,4 +78,7 @@ identifier(ptr->getIdentifier()), value(ptr)
 {}
 
 Symbol::Symbol(): type(ast::IdType::Variable), dataType(ast::DataType::Int)
+{}
+
+Symbol::Symbol(std::string _id, ast::DataType t): type(ast::IdType::Function), dataType(t), identifier(_id)
 {}

@@ -312,7 +312,7 @@ int main()
 	auto exec = dynamic_cast<ast::FunctionExec*>(program->getFunctions()[1]->getFunctionBody()->getInstructions()[0].get());
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getIdentifier(), "testFun");
 	BOOST_CHECK_EQUAL(exec->getFunctionCall()->getCallOperator()->getArguments().size(), 0);
-	BOOST_CHECK_EQUAL(std::get<ast::FunctionDef*>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier()).value),
+	BOOST_CHECK_EQUAL(std::get<ast::FunctionDef*>(parser->getTable().getSymbol(exec->getFunctionCall()->getIdentifier())->value),
 		program->getFunctions()[0].get());
 }
 
@@ -333,11 +333,11 @@ int main()
 	std::unique_ptr<ast::Program> program;
 	BOOST_CHECK_NO_THROW(program = parser->parse());
 	auto definition = program->getFunctions()[0].get();
-	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst().size(), 2);
-	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[0].first, ast::DataType::Int);
-	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[0].second, "i");
-	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[1].first, ast::DataType::Graphic);
-	BOOST_CHECK_EQUAL(definition->getCallDef()->getArgumenst()[1].second, "shape");
+	BOOST_CHECK_EQUAL(definition->getCallDef()->getArguments().size(), 2);
+	BOOST_CHECK_EQUAL(definition->getCallDef()->getArguments()[0].first, ast::DataType::Int);
+	BOOST_CHECK_EQUAL(definition->getCallDef()->getArguments()[0].second, "i");
+	BOOST_CHECK_EQUAL(definition->getCallDef()->getArguments()[1].first, ast::DataType::Graphic);
+	BOOST_CHECK_EQUAL(definition->getCallDef()->getArguments()[1].second, "shape");
 }
 
 BOOST_FIXTURE_TEST_CASE(Parsing_function_exec_with_params, ParserFix)
@@ -804,6 +804,25 @@ R"(int main()
 	BOOST_CHECK_EXCEPTION(program = parser->parse(), Error, [](const Error& e)->bool {
 		return std::string{ "Line: 5 pos: 6 Unexpected token  of type: Assigment" }.compare(e.what()) == 0 ? true : false;
 	});
+}
+
+BOOST_FIXTURE_TEST_CASE(Parsing_arguments_passing_test, ParserFix)
+{
+	auto parser = getParser(R"(
+int fun(int x)
+{
+	return x * x;
+}
+
+int main() 
+{
+	int z = 2;	
+	z = fun(z);
+	return z;
+}
+)");
+
+	BOOST_CHECK_NO_THROW(parser->parse());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

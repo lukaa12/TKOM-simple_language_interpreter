@@ -2,9 +2,11 @@
 #define EXPRESSIONS_H
 
 #include "AstNode.h"
+#include "../Error.h"
 
 namespace tkom {
 	namespace ast {
+
 
 		class Expression;
 
@@ -58,6 +60,8 @@ namespace tkom {
 			template<>
 			void setValue(std::string val);
 
+			int eval();
+
 		private:
 			Type type;
 			std::variant<std::string, int, std::unique_ptr<FunctionCall>, std::unique_ptr<BracketExpression>> value;
@@ -71,7 +75,7 @@ namespace tkom {
 				component->parent = this;
 				components.push_back(std::move(component));
 				if (components.size() != divisionFlags.size() + 1)
-					throw std::exception("Illegal multiplicative expression");
+					throw Error("Illegal multiplicative expression");
 			}
 
 			void addOperator(bool isDivision)
@@ -88,6 +92,8 @@ namespace tkom {
 			{
 				return divisionFlags;
 			}
+
+			int eval();
 
 		private:
 			std::vector<std::unique_ptr<PrimaryExpression>> components;
@@ -107,6 +113,8 @@ namespace tkom {
 				component.second->parent = this;
 				components.push_back(std::move(component));
 			}
+
+			int eval();
 
 		private:
 			std::vector<std::pair<bool, std::unique_ptr<MultiplicativeExpression>>> components;

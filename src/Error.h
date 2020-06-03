@@ -14,10 +14,17 @@ namespace tkom {
 			UnexpectedToken,
 			UndefinedReference,
 			MissingStatement,
-			IncorrectParametersList
+			IncorrectParametersList,
+			MissingMain,
+			UncompatibleType,
+			CallOnNonFunction,
+			DivisionByZero,
+			BreakOutsideLoop,
+			FunctionNotReturnedValue
 		};
 		Error(const Token::Position& pos, Type _type);
 		Error(const Token& token, Type _type);
+		Error(std::string s = "");
 
 		const char* what() const override;
 
